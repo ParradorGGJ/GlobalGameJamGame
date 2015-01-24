@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Editor\RandomEditor.cs" />
      <None Include="Assets\TEST COMMIT.txt" />
+     <None Include="Assets\Shaders\Triplanar_Shader.shader" />
      <None Include="Assets\Sounds\Ref.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
