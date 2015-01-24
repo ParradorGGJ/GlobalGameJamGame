@@ -39,7 +39,7 @@ namespace Parrador
         private void UpdateObjectPositionRotation()
         {
             if (m_UsedStateTransform == null || m_NormalStateTransform == null) { return; }
-
+            
             if (m_Used)
             {
                 transform.position = m_UsedStateTransform.position;

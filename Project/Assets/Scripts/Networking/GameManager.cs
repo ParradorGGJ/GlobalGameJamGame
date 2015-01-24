@@ -10,7 +10,7 @@ namespace Parrador
 
         private static GameManager s_Instance = null;
 
-        private static GameManager instance
+        public static GameManager instance
         {
             get { if (s_Instance == null) { CreateInstance(); } return s_Instance; }
         }
@@ -58,7 +58,27 @@ namespace Parrador
         private float m_TimeLimit = 60.0f;
         private float m_TimeRemaining;
 
-        //erializeField]
+        //[SerializeField]
+
+
+        public static void AddTime(float aBonusTime)
+        {
+            instance.m_TimeRemaining += aBonusTime;
+        }
+
+
+        public static CorridorController corridorController
+        {
+            get { return instance.m_CorridorController; }
+            set { instance.m_CorridorController = value; }
+        }
+
+        public static float timeRemaining
+        {
+            get { return instance.m_TimeRemaining; }
+            set { instance.m_TimeRemaining = value; }
+        }
+
 
     }
 }
