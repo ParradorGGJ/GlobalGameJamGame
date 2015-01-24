@@ -16,20 +16,23 @@ namespace Parrador
         [SerializeField]
         private Transform m_NormalStateTransform = null;
 
-        [SerializeField]
         private ObjectType m_ObjectType;
 
 
         // Use this for initialization
         void Start()
         {
-
+            m_ObjectType = ObjectType.WasteBasket;
+            if ( (m_UsedStateTransform == null || m_NormalStateTransform == null) )
+            {
+                Debug.Log("Wastebasket not set up properly. ID: " + GetInstanceID());
+            }
         }
 
         // Update is called once per frame
         void Update()
         {
-            UpdateState();
+            UpdateState();  //only here while testing, will be called through interfact externally
         }
 
 
