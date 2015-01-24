@@ -44,7 +44,7 @@ namespace Parrador
             }
             else
             {
-                Destroy(this);
+                Destroy(gameObject);
             }
         }
 
@@ -280,10 +280,13 @@ namespace Parrador
         {
             //TODO: Tell Server To Register Me. (Send Name)
             m_CurrentState = NetworkState.LobbyClient;
+            networkView.RPC("OnRegisterPlayer",RPCMode.Server,m_HostName);
+            Debug.Log("Disconnected");
         }
 
         private void OnDisconnectedFromServer(NetworkDisconnection aInfo)
         {
+            Debug.Log("Disconnected");
             if(Network.isServer)
             {
                 //Local Server Disconnected
@@ -301,6 +304,7 @@ namespace Parrador
                 }
                 else if (aInfo == NetworkDisconnection.Disconnected)
                 {
+                    
                     //Successfully disconnected.
                     m_CurrentState = NetworkState.MatchMaking;
                     if(Application.loadedLevelName != MENU_NAME )
@@ -329,6 +333,20 @@ namespace Parrador
         private void OnPlayerDisconnected(NetworkPlayer aPlayer)
         {
             Debug.Log("Player Disconnected");
+
+
+
+            m_RegisteringPlayers.RemoveAll(Element => Element.player == aPlayer);
+            m_CurrentPlayers.RemoveAll(Element => Element.player == aPlayer);
+            m_LoadedPlayers.RemoveAll(Element => Element.player == aPlayer);
+
+
+            List<NetworkPlayerStreamInfo> streamInfo = new List<NetworkPlayerStreamInfo>();
+            foreach (NetworkPlayerInfo netPlayer in m_CurrentPlayers)
+            {
+                streamInfo.Add(netPlayer.streamInfo);
+            }
+
         }
 
         private void OnServerInitialized()
@@ -351,6 +369,11 @@ namespace Parrador
                     Debug.Log("Loaded Level");
                     networkView.RPC("OnRegisterGameLoaded", RPCMode.Server, m_HostName);
                 }
+                else if(Network.isServer)
+                {
+                    Debug.Log("Loaded Level");
+                    OnRegisterGameLoaded(m_HostName);
+                }
             }
         }
 
@@ -366,6 +389,24 @@ namespace Parrador
             if(Network.isClient)
             {
                 networkView.RPC("OnRegisterPlayer", RPCMode.Server, m_HostName);
+            }
+        }
+
+        private void SendUpdateList(List<NetworkPlayerStreamInfo> aInfo)
+        {
+            ///Send updated info to the clients.
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, aInfo);
+            byte[] playerInfoStream = stream.ToArray();
+
+            if (playerInfoStream == null || playerInfoStream.Length == 0)
+            {
+                Debug.LogError("Failed to serialize current player");
+            }
+            else
+            {
+                networkView.RPC("OnUpdateConnectedUsers", RPCMode.Others, playerInfoStream);
             }
         }
 
@@ -440,6 +481,7 @@ namespace Parrador
             {
                 Debug.Log("Failed to register with server");
                 Network.Disconnect();
+                m_CurrentState = NetworkState.MatchMaking;
             }
         }
 
@@ -470,20 +512,9 @@ namespace Parrador
                     streamInfo.Add(netPlayer.streamInfo);
                 }
 
-                ///Send updated info to the clients.
-                MemoryStream stream = new MemoryStream();
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, streamInfo);
-                byte[] playerInfoStream = stream.ToArray();
+                SendUpdateList(streamInfo);
 
-                if (playerInfoStream == null || playerInfoStream.Length == 0)
-                {
-                    Debug.LogError("Failed to serialize current player");
-                }
-                else
-                {
-                    networkView.RPC("OnUpdateConnectedUsers", RPCMode.Others, playerInfoStream);
-                }
+                
             }
             else
             {
@@ -533,6 +564,12 @@ namespace Parrador
             {
                 return;
             }
+            if(m_CurrentPlayers.Count != MAX_PLAYERS)
+            {
+                Debug.Log("Need more players");
+                return;
+            }
+
             networkView.RPC("OnStartGame", RPCMode.Others);
             OnStartGame();
             m_RegisteringPlayers.Clear();
@@ -541,6 +578,7 @@ namespace Parrador
         [RPC]
         private void OnStartGame()
         {
+            Debug.Log("Start Game");
             Application.LoadLevel(LEVEL_NAME);
         }
 
