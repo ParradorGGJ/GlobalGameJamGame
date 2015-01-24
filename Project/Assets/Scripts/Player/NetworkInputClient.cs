@@ -9,6 +9,13 @@ namespace Parrador
         private float m_PositionErrorThreshHold = 0.2f;
         [SerializeField]
         private float m_Speed = 5.0f;
+        [SerializeField]
+        private float m_JumpForce = 10.0f;
+        [SerializeField]
+        private float m_Gravity = 9.81f;
+        [SerializeField]
+        private float m_TurnSpeed = 45.0f;
+
         private CharacterController m_Controller = null;
         private NetworkController m_NetworkController = null;
 
@@ -19,6 +26,9 @@ namespace Parrador
 
         private Vector3 m_ServerPosition = Vector3.zero;
         private Quaternion m_ServerRotation = Quaternion.identity;
+
+        
+        private Vector3 m_Velocity = Vector3.zero;
 
         void Awake()
         {
@@ -44,8 +54,9 @@ namespace Parrador
             {
                 float motionH = Input.GetAxis("Horizontal");
                 float motionV = Input.GetAxis("Vertical");
+                float mouseX = Input.GetAxis("Mouse X");
 
-                if (motionH != m_LastHorizontalMotion || motionV != m_LastVerticalMotion)
+                if (motionH != m_LastHorizontalMotion || motionV != m_LastVerticalMotion || mouseX != 0.0f)
                 {
                     if (m_NetworkController != null)
                     {
@@ -56,7 +67,23 @@ namespace Parrador
 
                     if (m_Controller != null)
                     {
-                        m_Controller.Move(new Vector3(m_LastHorizontalMotion * m_Speed * Time.deltaTime, 0.0f, m_LastVerticalMotion * m_Speed * Time.deltaTime));
+                        transform.Rotate(0.0f,mouseX * m_TurnSpeed * Time.deltaTime,0.0f);
+
+                        if(m_Controller.isGrounded)
+                        {
+                            Vector3 moveDirection = new Vector3(m_LastHorizontalMotion, 0.0f, m_LastVerticalMotion);
+                            moveDirection = transform.TransformDirection(moveDirection);
+                            moveDirection *= m_Speed;
+
+                            if(Input.GetButtonDown("Jump"))
+                            {
+                                moveDirection.y = m_JumpForce;
+                            }
+                            m_Velocity = moveDirection;
+                        }
+
+                        m_Velocity.y -= m_Gravity * Time.deltaTime;
+                        m_Controller.Move(m_Velocity * Time.deltaTime);
                     }
                 }
             }

@@ -96,6 +96,11 @@ namespace Parrador
                 if(self == aOwner)
                 {
                     m_Player = manager.GetSpawnedObject(aID);
+                    if(m_Player != null)
+                    {
+                        Camera.main.transform.position = m_Player.transform.position;
+                        Camera.main.transform.parent = m_Player.transform;
+                    }
                 }
             }
 
@@ -113,6 +118,7 @@ namespace Parrador
                     if(spawnedObject == m_Player)
                     {
                         m_Player = null;
+                        Camera.main.transform.parent = null;
                     }
                 }
             }
