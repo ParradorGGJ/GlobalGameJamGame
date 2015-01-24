@@ -1,3 +1,5 @@
 Project/Library/
 Project/Temp/
 Project/Obj
+*.sln
+Project/Project-csharp.v12.suo
