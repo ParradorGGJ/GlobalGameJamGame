@@ -22,10 +22,10 @@ namespace Parrador
 
         void Awake()
         {
-            if (Network.isClient)
-            {
-                enabled = false;
-            }
+            //if (Network.isClient)
+            //{
+            //    enabled = false;
+            //}
         }
 
         void Start()
@@ -39,11 +39,8 @@ namespace Parrador
 
         private void Update()
         {
-            if (m_NetworkController.objectOwner != m_NetworkController.self )
-            {
-                return;
-            }
-            if (m_Owner != default(NetworkPlayer) && Network.player == m_Owner)
+
+            if(m_NetworkController.isOwner)
             {
                 float motionH = Input.GetAxis("Horizontal");
                 float motionV = Input.GetAxis("Vertical");
@@ -63,6 +60,7 @@ namespace Parrador
                     }
                 }
             }
+
         }
 
         public void LerpToTarget(Vector3 aServerPosition, Quaternion aServerRotation)

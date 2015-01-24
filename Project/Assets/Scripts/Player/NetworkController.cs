@@ -53,8 +53,7 @@ namespace Parrador
             }
             else if(Network.isServer)
             {
-                //ReceiveUpdateClientMotion(aHorizontal, aVertical);
-                Debug.LogError("OnRegisterPlayer was called on a machine that is not the server.");
+                OnReceiveUpdateClientMotion(aHorizontal, aVertical);
             }
             
         }
@@ -64,7 +63,7 @@ namespace Parrador
         {
             if(!Network.isServer)
             {
-                Debug.LogError("ReceiveUpdateClientMotion was called on a machine that is not the server.");
+                Debug.LogError("OnReceiveUpdateClientMotion was called on a machine that is not the server.");
                 return;
             }
             m_ServerInput.UpdateClientMotion(aHorizontal, aVertical);
@@ -196,6 +195,10 @@ namespace Parrador
         public string self
         {
             get { return m_Self; }
+        }
+        public bool isOwner
+        {
+            get { return m_Self == m_PlayerName; }
         }
     }
 }
