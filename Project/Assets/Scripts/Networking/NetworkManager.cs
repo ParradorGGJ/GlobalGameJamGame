@@ -22,6 +22,7 @@ namespace Parrador
     public interface INetworkCallbackHandler
     {
         void OnGameStart();
+        void OnGameObjectSpawned(string aObjectID);
     }
 
     [RequireComponent(typeof(NetworkView))]
@@ -158,6 +159,11 @@ namespace Parrador
         }
         public void RegisterSpawnedObject(GameObject aObject)
         {
+            NetworkController controller = aObject.GetComponent<NetworkController>();
+            if(controller != null && callbackHandler != null)
+            {
+                callbackHandler.OnGameObjectSpawned(controller.objectID);
+            }
             m_ServerGameObjects.Add(aObject);
         }
         public GameObject GetSpawnedObject(string aObjectId)
@@ -694,12 +700,12 @@ namespace Parrador
             }
         }
 
-        private void SpawnObject(int aID)
+        public void SpawnObject(int aID)
         {
             SpawnObject(aID, Vector3.zero, Quaternion.identity);
         }
 
-        private void SpawnObject(int aID, Vector3 aPosition, Quaternion aRotation)
+        public void SpawnObject(int aID, Vector3 aPosition, Quaternion aRotation)
         {
             if(Network.isClient)
             {
@@ -710,7 +716,7 @@ namespace Parrador
                 OnNetworkSpawnObject(aID, m_HostName, aPosition, aRotation);
             }
         }
-        private void DespawnObject(string aObjectID)
+        public void DespawnObject(string aObjectID)
         {
             if(Network.isClient)
             {
