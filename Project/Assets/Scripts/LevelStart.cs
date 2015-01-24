@@ -81,15 +81,15 @@ namespace Parrador
 
             if(Input.GetKeyDown(KeyCode.U))
             {
-                manager.SpawnObject(m_Red.GetInstanceID());
+                manager.SpawnObject(0);
             }
             if (Input.GetKeyDown(KeyCode.I))
             {
-                manager.SpawnObject(m_Blue.GetInstanceID());
+                manager.SpawnObject(1);
             }
             if (Input.GetKeyDown(KeyCode.O))
             {
-                manager.SpawnObject(m_Yellow.GetInstanceID());
+                manager.SpawnObject(1);
             }
             if(m_SpawnedObjectIDs.Count > 0 )
             {

@@ -700,20 +700,20 @@ namespace Parrador
             }
         }
 
-        public void SpawnObject(int aID)
+        public void SpawnObject(int aIndex)
         {
-            SpawnObject(aID, Vector3.zero, Quaternion.identity);
+            SpawnObject(aIndex, Vector3.zero, Quaternion.identity);
         }
 
-        public void SpawnObject(int aID, Vector3 aPosition, Quaternion aRotation)
+        public void SpawnObject(int aIndex, Vector3 aPosition, Quaternion aRotation)
         {
             if(Network.isClient)
             {
-                networkView.RPC("OnNetworkSpawnObject", RPCMode.Server, aID, m_HostName, aPosition, aRotation);
+                networkView.RPC("OnNetworkSpawnObject", RPCMode.Server, aIndex, m_HostName, aPosition, aRotation);
             }
             else if(Network.isServer)
             {
-                OnNetworkSpawnObject(aID, m_HostName, aPosition, aRotation);
+                OnNetworkSpawnObject(aIndex, m_HostName, aPosition, aRotation);
             }
         }
         public void DespawnObject(string aObjectID)
@@ -729,7 +729,7 @@ namespace Parrador
         }
 
         [RPC]
-        private void OnNetworkSpawnObject(int aID, string aPlayer, Vector3 aPosition, Quaternion aRotation)
+        private void OnNetworkSpawnObject(int aIndex, string aPlayer, Vector3 aPosition, Quaternion aRotation)
         {
             if(!Network.isServer)
             {
@@ -737,11 +737,11 @@ namespace Parrador
                 return;
             }
 
-            GameObject prefab = GetPrefabByID(aID);
+            GameObject prefab = GetPrefabByIndex(aIndex);
             NetworkPlayerInfo player = GetPlayer(aPlayer);
             if(prefab == null)
             {
-                Debug.LogError("Failed to SpawnObject, Missing prefab: id(" + aID + ").");
+                Debug.LogError("Failed to SpawnObject, Missing prefab: index(" + aIndex + ").");
                 return;
             }
             if(string.IsNullOrEmpty(player.name))
