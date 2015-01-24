@@ -11,6 +11,9 @@ namespace Parrador
 
         private TransitionPoint[] m_TransitionScripts = null;
 
+        [SerializeField]
+        private Room[] m_RoomList = null;
+
         // Use this for initialization
         void Start()
         {
@@ -28,7 +31,7 @@ namespace Parrador
 
         }
 
-        public GameObject GetRandomTransitionPoint()
+        public GameObject GetRandomTransitionLocation()
         {
             if (m_TransitionLocations == null) { return null; }
 
@@ -49,6 +52,8 @@ namespace Parrador
             }
             
         }
+
+        //public 
 
     }
 }

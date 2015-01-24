@@ -13,6 +13,9 @@ namespace Parrador
         private GameObject[] m_RoomObjects;
 
         [SerializeField]
+        private Transform m_TransitionLocation;
+
+        [SerializeField]
         private int m_TimesVisitedByOtherPlayer = 0;
 
         // Use this for initialization
@@ -37,6 +40,9 @@ namespace Parrador
             get { return m_UniqueRoomType; }
         }
 
-        //public void 
+        public Transform transitionLocation
+        {
+            get { return m_TransitionLocation; }
+        }
     }
 }
