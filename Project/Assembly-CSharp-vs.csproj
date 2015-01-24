@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\CorridorController.cs" />
      <Compile Include="Assets\Scripts\InteractiveObject.cs" />
+     <Compile Include="Assets\Scripts\Networking\GameManager.cs" />
      <Compile Include="Assets\Scripts\Networking\LobbyBrowser.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkPlayerInfo.cs" />

@@ -25,7 +25,7 @@ namespace Parrador
             m_ObjectType = ObjectType.WasteBasket;
             if ( (m_UsedStateTransform == null || m_NormalStateTransform == null) )
             {
-                Debug.Log("Wastebasket not set up properly. ID: " + GetInstanceID());
+                Debug.Log(m_ObjectType + " ObjectType not set up properly. ID: " + GetInstanceID());
             }
         }
 
