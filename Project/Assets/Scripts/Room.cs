@@ -7,10 +7,13 @@ namespace Parrador
     public class Room : MonoBehaviour
     {
         [SerializeField]
-        private int m_UniqueID;
+        private RoomType m_UniqueRoomType;
 
         [SerializeField]
         private GameObject[] m_RoomObjects;
+
+        [SerializeField]
+        private Transform m_TransitionLocation;
 
         [SerializeField]
         private int m_TimesVisitedByOtherPlayer = 0;
@@ -32,11 +35,14 @@ namespace Parrador
             return m_RoomObjects;
         }
 
-        public int uniqueID
+        public RoomType uniqueID
         {
-            get { return m_UniqueID; }
+            get { return m_UniqueRoomType; }
         }
 
-        //public void 
+        public Transform transitionLocation
+        {
+            get { return m_TransitionLocation; }
+        }
     }
 }
