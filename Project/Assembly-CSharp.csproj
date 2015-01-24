@@ -73,6 +73,7 @@
      <Compile Include="Assets\Scripts\RoomObjects\WasteBasketBehaviour.cs" />
      <Compile Include="Assets\Scripts\TransitionPoint.cs" />
      <Compile Include="Assets\Scripts\Utils\DebugLabelAttribute.cs" />
+     <None Include="Assets\Shaders\Triplanar_Shader.shader" />
      <None Include="Assets\Sounds\Ref.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
