@@ -424,11 +424,33 @@ namespace Parrador
         {
             Debug.Log("Player Disconnected");
 
+            string playerName = m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.player == aPlayer).name;
 
+            if(!string.IsNullOrEmpty(playerName))
+            {
+                foreach (GameObject gObject in m_ServerGameObjects)
+                {
+                    NetworkController netController = gObject.GetComponent<NetworkController>();
+                    if (netController != null)
+                    {
+                        if (netController.objectOwner == playerName)
+                        {
+                            DespawnObject(netController.objectID);
+                        }
+                    }
+                }
+                StartCoroutine(PlayerDisconnectRoutine(playerName));
+            }
 
-            m_RegisteringPlayers.RemoveAll(Element => Element.player == aPlayer);
-            m_CurrentPlayers.RemoveAll(Element => Element.player == aPlayer);
-            m_LoadedPlayers.RemoveAll(Element => Element.player == aPlayer);
+            
+        }
+
+        IEnumerator PlayerDisconnectRoutine(string aPlayerName)
+        {
+            yield return new WaitForSeconds(1.0f);
+            m_RegisteringPlayers.RemoveAll(Element => Element.name == aPlayerName);
+            m_CurrentPlayers.RemoveAll(Element => Element.name == aPlayerName);
+            m_LoadedPlayers.RemoveAll(Element => Element.name == aPlayerName);
 
 
             List<NetworkPlayerStreamInfo> streamInfo = new List<NetworkPlayerStreamInfo>();
@@ -436,6 +458,7 @@ namespace Parrador
             {
                 streamInfo.Add(netPlayer.streamInfo);
             }
+            SendUpdateList(streamInfo);
 
         }
 
