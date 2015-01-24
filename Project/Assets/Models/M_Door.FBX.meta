@@ -6,15 +6,20 @@ ModelImporter:
     100000: Door
     100002: Door_Trim
     100004: //RootNode
+    100006: DoorKnobs
     400000: Door
     400002: Door_Trim
     400004: //RootNode
+    400006: DoorKnobs
     2300000: Door
     2300002: Door_Trim
+    2300004: DoorKnobs
     3300000: Door
     3300002: Door_Trim
+    3300004: DoorKnobs
     4300000: Door
     4300002: Door_Trim
+    4300004: DoorKnobs
     9500000: //RootNode
   materials:
     importMaterials: 0

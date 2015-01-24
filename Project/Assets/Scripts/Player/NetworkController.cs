@@ -30,6 +30,15 @@ namespace Parrador
             m_ServerInput = GetComponent<NetworkInputServer>();
         }
 
+        private void OnDestroy()
+        {
+            NetworkManager manager = NetworkManager.instance;
+            if(manager != null)
+            {
+                manager.UnregisterSpawnedObject(gameObject);
+            }
+        }
+
         public void SendUpdateClientMotion(float aHorizontal, float aVertical)
         {
             if(Network.isClient)

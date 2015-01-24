@@ -22,7 +22,8 @@ namespace Parrador
     public interface INetworkCallbackHandler
     {
         void OnGameStart();
-        void OnGameObjectSpawned(string aObjectID);
+        void OnGameObjectSpawned(string aObjectID, string aOwner);
+        void OnGameObjectDespawned(string aObjectID, string aOwner);
     }
 
     [RequireComponent(typeof(NetworkView))]
@@ -167,10 +168,21 @@ namespace Parrador
             NetworkController controller = aObject.GetComponent<NetworkController>();
             if(controller != null && callbackHandler != null)
             {
-                callbackHandler.OnGameObjectSpawned(controller.objectID);
+                callbackHandler.OnGameObjectSpawned(controller.objectID, controller.objectOwner);
             }
             
         }
+        public void UnregisterSpawnedObject(GameObject aObject)
+        {
+            bool exists = m_ServerGameObjects.Any<GameObject>(Element => Element == aObject);
+            NetworkController controller = aObject.GetComponent<NetworkController>();
+            if(callbackHandler != null && controller != null && exists)
+            {
+                callbackHandler.OnGameObjectDespawned(controller.objectID, controller.objectOwner);
+            }
+            m_ServerGameObjects.Remove(aObject);
+        }
+
         public GameObject GetSpawnedObject(string aObjectId)
         {
             foreach (GameObject gObject in m_ServerGameObjects)
@@ -734,15 +746,13 @@ namespace Parrador
                 OnNetworkDespawnObject(aObjectID, m_HostName);
             }
         }
-        public bool DespawnObject(GameObject aObject)
+        public void DespawnObject(GameObject aObject)
         {
             NetworkController controller = aObject.GetComponent<NetworkController>();
             if(controller != null)
             {
                 DespawnObject(controller.objectID);
-                return true;
             }
-            return false;
         }
         [RPC]
         private void OnNetworkSpawnObject(int aIndex, string aPlayer, Vector3 aPosition, Quaternion aRotation)
