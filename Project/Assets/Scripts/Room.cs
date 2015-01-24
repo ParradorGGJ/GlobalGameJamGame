@@ -10,7 +10,7 @@ namespace Parrador
         private RoomType m_UniqueRoomType;
 
         [SerializeField]
-        private GameObject[] m_RoomObjects;
+        private InteractiveObject[] m_RoomObjects;
 
         [SerializeField]
         private Transform m_TransitionLocation;
@@ -30,7 +30,25 @@ namespace Parrador
 
         }
 
-        public GameObject[] GetRoomObjects()
+        /// <summary>
+        /// Null check results for safety
+        /// </summary>
+        /// <param name="aObjectType"></param>
+        /// <returns></returns>
+        public InteractiveObject GetObjectFromRoom(ObjectType aObjectType)
+        {
+            for (int i = 0; i < m_RoomObjects.Length; i++ )
+            {
+                if (m_RoomObjects[i].GetObjectType() == aObjectType)
+                {
+                    return m_RoomObjects[i];
+                }
+            }
+
+            return null;
+        }
+
+        public InteractiveObject[] GetRoomObjects()
         {
             return m_RoomObjects;
         }

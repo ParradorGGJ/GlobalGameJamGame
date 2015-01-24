@@ -43,7 +43,7 @@ namespace Parrador
 
                 if (m_Corridor == null)
                 {
-                    Debug.Log("getting corridor ref from gamemanager");
+                    //Debug.Log("getting corridor ref from gamemanager");
                     m_Corridor = GameManager.instance.corridorController;
 
                     if (m_Corridor == null)
