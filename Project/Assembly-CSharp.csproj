@@ -57,6 +57,9 @@
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\Room.cs" />
      <Compile Include="Assets\Scripts\TransitionPoint.cs" />
+     <Compile Include="Assets\Scripts\WasteBasketBehaviour.cs" />
+     <None Include="Assets\TEST COMMIT.txt" />
+     <None Include="Assets\Sounds\Ref.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
  </Reference>
