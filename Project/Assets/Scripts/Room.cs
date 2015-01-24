@@ -7,7 +7,7 @@ namespace Parrador
     public class Room : MonoBehaviour
     {
         [SerializeField]
-        private int m_UniqueID;
+        private RoomType m_UniqueRoomType;
 
         [SerializeField]
         private GameObject[] m_RoomObjects;
@@ -32,9 +32,9 @@ namespace Parrador
             return m_RoomObjects;
         }
 
-        public int uniqueID
+        public RoomType uniqueID
         {
-            get { return m_UniqueID; }
+            get { return m_UniqueRoomType; }
         }
 
         //public void 
