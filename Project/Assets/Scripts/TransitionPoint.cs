@@ -26,5 +26,16 @@ namespace Parrador
             get { return m_DestinationRoom; }
             set { m_DestinationRoom = value; }
         }
+
+
+        void OnTriggerStay(Collider collider)
+        {
+            if (collider.CompareTag("Player") == false) { return; }
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                Debug.Log("e pressed in door");
+            }
+        }
     }
 }
