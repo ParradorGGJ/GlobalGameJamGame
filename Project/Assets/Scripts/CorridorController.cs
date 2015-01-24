@@ -59,6 +59,16 @@ namespace Parrador
         public Transform GetRoomTransitionPoint(RoomType aRoomType)
         {
             Transform point = null;
+
+            if (aRoomType == RoomType.Corridor)
+            { 
+                RandomizeTransitionPointDestinations();
+
+                point.position = GetRandomTransitionLocation().transform.position;
+                point.rotation = GetRandomTransitionLocation().transform.rotation;
+                return point;
+            }
+
             for (int i = 0; i < m_RoomList.Length; i++)
             {
                 if (m_RoomList[i].uniqueID == aRoomType)
