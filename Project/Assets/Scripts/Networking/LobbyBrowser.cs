@@ -43,7 +43,15 @@ namespace Parrador
             {
                 int playerCount =  manager.connectedPlayers;
                 m_PlayerCount.text = playerCount.ToString();
+
+                if (m_GameLobby.activeSelf == true && manager.networkState == NetworkState.MatchMaking)
+                {
+                    LobbySetup();
+                }
+
             }
+
+            
         }
 
         public void EnterPlayerName(string aName)
@@ -246,6 +254,11 @@ namespace Parrador
                     }
                     else
                     {
+                        NetworkManager manager = NetworkManager.instance;
+                        if(manager != null)
+                        {
+                            manager.networkState = NetworkState.LobbyClient;
+                        }
                         m_HostSettings.SetActive(false);
                         m_Lobby.SetActive(false);
                         m_GameLobby.SetActive(true);

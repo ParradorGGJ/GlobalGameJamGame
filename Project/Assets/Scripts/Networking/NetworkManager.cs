@@ -481,6 +481,7 @@ namespace Parrador
             {
                 Debug.Log("Failed to register with server");
                 Network.Disconnect();
+                m_CurrentState = NetworkState.MatchMaking;
             }
         }
 
