@@ -61,19 +61,19 @@ namespace Parrador
         //[SerializeField]
 
 
-        public static void AddTime(float aBonusTime)
+        public void AddTime(float aBonusTime)
         {
             instance.m_TimeRemaining += aBonusTime;
         }
 
 
-        public static CorridorController corridorController
+        public CorridorController corridorController
         {
             get { return instance.m_CorridorController; }
             set { instance.m_CorridorController = value; }
         }
 
-        public static float timeRemaining
+        public float timeRemaining
         {
             get { return instance.m_TimeRemaining; }
             set { instance.m_TimeRemaining = value; }

@@ -9,7 +9,6 @@ namespace Parrador
         [SerializeField]
         private RoomType m_DestinationRoom;
 
-        [SerializeField]
         private CorridorController m_Corridor = null;
 
         // Use this for initialization
@@ -21,7 +20,7 @@ namespace Parrador
         // Update is called once per frame
         void Update()
         {
-
+            
         }
 
         public RoomType DestinationRoom
@@ -44,8 +43,14 @@ namespace Parrador
 
                 if (m_Corridor == null)
                 {
-                    Debug.Log("corridor ref null");
-                    return;
+                    Debug.Log("getting corridor ref from gamemanager");
+                    m_Corridor = GameManager.instance.corridorController;
+
+                    if (m_Corridor == null)
+                    {
+                        Debug.Log("corridor ref from gamemanager found null");
+                        return;
+                    }
                 }
 
                 Transform movePoint = m_Corridor.GetRoomTransitionPoint(m_DestinationRoom);
