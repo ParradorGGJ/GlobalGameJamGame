@@ -5,7 +5,9 @@ namespace Parrador
 {
     public class NetworkController : MonoBehaviour
     {
+        [SerializeField]
         private Transform m_Observed = null;
+        [SerializeField]
         private float m_PingMargin = 0.2f;
 
         private NetworkInputClient m_ClientInput = null;
@@ -15,9 +17,18 @@ namespace Parrador
         private NetworkState[] m_NetworkStates = new NetworkState[20];
 
         // -- Network Info
+        [SerializeField]
         private string m_PlayerName = string.Empty;
+        [SerializeField]
         private int m_PlayerIndex = 0;
+        [SerializeField]
         private string m_ObjectID = string.Empty;
+
+        private void Start()
+        {
+            m_ClientInput = GetComponent<NetworkInputClient>();
+            m_ServerInput = GetComponent<NetworkInputServer>();
+        }
 
         public void SendUpdateClientMotion(float aHorizontal, float aVertical)
         {

@@ -142,6 +142,10 @@ namespace Parrador
         {
             return m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == aName);
         }
+        public NetworkPlayerInfo GetSelf()
+        {
+            return m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == m_HostName);
+        }
         public int GetPlayerIndex(NetworkPlayerInfo aInfo)
         {
             if(string.IsNullOrEmpty(aInfo.name))
@@ -727,7 +731,16 @@ namespace Parrador
                 OnNetworkDespawnObject(aObjectID, m_HostName);
             }
         }
-
+        public bool DespawnObject(GameObject aObject)
+        {
+            NetworkController controller = aObject.GetComponent<NetworkController>();
+            if(controller != null)
+            {
+                DespawnObject(controller.objectID);
+                return true;
+            }
+            return false;
+        }
         [RPC]
         private void OnNetworkSpawnObject(int aIndex, string aPlayer, Vector3 aPosition, Quaternion aRotation)
         {

@@ -17,17 +17,9 @@ namespace Parrador
         [SerializeField]
         private Vector3[] m_SpawnPositions = null;
 
-        public bool redSpawned = false;
-        public bool greenSpawned = false;
-        public bool blueSpawned = false;
 
-        public GameObject m_Red = null;
-        public GameObject m_Blue = null;
-        public GameObject m_Yellow = null;
-
-        [SerializeField]
-        public List<string> m_SpawnedObjectIDs = new List<string>();
-
+        public GameObject m_Player = null;
+        
         void Awake()
         {
             if (s_Instance == null)
@@ -51,11 +43,6 @@ namespace Parrador
             else
             {
                 manager.callbackHandler = this;
-                m_Red = manager.GetPrefabByIndex(0);
-                m_Blue = manager.GetPrefabByIndex(1);
-                m_Yellow = manager.GetPrefabByIndex(2);
-
-                
             }
 	    }
 
@@ -74,42 +61,27 @@ namespace Parrador
 
         void HandleSpawning(NetworkManager manager)
         {
-            if(m_Red == null || m_Blue == null || m_Yellow == null)
-                {
-                    return;
-                }
+            int playerIndex = manager.GetPlayerIndex(manager.GetSelf());
+            Vector3 spawnPosition = Vector3.zero;
+            if(playerIndex >= 0 && playerIndex <= m_SpawnPositions.Length)
+            {
+                spawnPosition = m_SpawnPositions[playerIndex];
+            }
 
-            if(Input.GetKeyDown(KeyCode.U))
-            {
-                manager.SpawnObject(0);
-            }
-            if (Input.GetKeyDown(KeyCode.I))
-            {
-                manager.SpawnObject(1);
-            }
-            if (Input.GetKeyDown(KeyCode.O))
-            {
-                manager.SpawnObject(1);
-            }
-            if(m_SpawnedObjectIDs.Count > 0 )
-            {
-                if (Input.GetKeyDown(KeyCode.J))
-                {
-                    manager.DespawnObject(m_SpawnedObjectIDs[m_SpawnedObjectIDs.Count - 1]);
-                    m_SpawnedObjectIDs.RemoveAt(m_SpawnedObjectIDs.Count - 1);
-                }
-                if (Input.GetKeyDown(KeyCode.K))
-                {
-                    manager.DespawnObject(m_SpawnedObjectIDs[m_SpawnedObjectIDs.Count - 1]);
-                    m_SpawnedObjectIDs.RemoveAt(m_SpawnedObjectIDs.Count - 1);
-                }
-                if (Input.GetKeyDown(KeyCode.L))
-                {
-                    manager.DespawnObject(m_SpawnedObjectIDs[m_SpawnedObjectIDs.Count - 1]);
-                    m_SpawnedObjectIDs.RemoveAt(m_SpawnedObjectIDs.Count - 1);
-                }
-            }
-            
+           if(Input.GetKeyDown(KeyCode.P))
+           {
+               if(m_Player == null)
+               {
+                   manager.SpawnObject(0, spawnPosition, Quaternion.identity);
+               }
+               else
+               {
+                   if(manager.DespawnObject(m_Player))
+                   {
+                       m_Player = null;
+                   }
+               }
+           }
 
 
         }
@@ -120,7 +92,11 @@ namespace Parrador
         }
         public void OnGameObjectSpawned(string aID)
         {
-            m_SpawnedObjectIDs.Add(aID);
+            NetworkManager manager = NetworkManager.instance;
+            if(manager != null && m_Player == null)
+            {
+                m_Player = manager.GetSpawnedObject(aID);
+            }
         }
     }
 
