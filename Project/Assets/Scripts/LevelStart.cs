@@ -76,10 +76,7 @@ namespace Parrador
                }
                else
                {
-                   if(manager.DespawnObject(m_Player))
-                   {
-                       m_Player = null;
-                   }
+                   manager.DespawnObject(m_Player);
                }
            }
 
@@ -90,15 +87,35 @@ namespace Parrador
         {
 
         }
-        public void OnGameObjectSpawned(string aID)
+        public void OnGameObjectSpawned(string aID, string aOwner)
         {
             NetworkManager manager = NetworkManager.instance;
-            
             if(manager != null && m_Player == null)
             {
-                m_Player = manager.GetSpawnedObject(aID);
+                string self = manager.GetSelf().name;
+                if(self == aOwner)
+                {
+                    m_Player = manager.GetSpawnedObject(aID);
+                }
             }
 
+        }
+
+        public void OnGameObjectDespawned(string aID, string aOwner)
+        {
+            NetworkManager manager = NetworkManager.instance;
+            if (manager != null && m_Player != null)
+            {
+                string self = manager.GetSelf().name;
+                if (self == aOwner)
+                {
+                    GameObject spawnedObject = manager.GetSpawnedObject(aID);
+                    if(spawnedObject == m_Player)
+                    {
+                        m_Player = null;
+                    }
+                }
+            }
         }
     }
 
