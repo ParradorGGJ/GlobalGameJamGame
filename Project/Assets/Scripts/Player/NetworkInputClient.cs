@@ -39,7 +39,7 @@ namespace Parrador
 
         private void Update()
         {
-            if (!Network.isClient)
+            if (m_NetworkController.objectOwner != m_NetworkController.self )
             {
                 return;
             }

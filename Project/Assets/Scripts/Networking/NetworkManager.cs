@@ -190,11 +190,10 @@ namespace Parrador
                 NetworkController controller = gObject.GetComponent<NetworkController>();
                 if (controller.objectID == aObjectId)
                 {
-                    Debug.Log("Found Object");
                     return gObject;
                 }
             }
-            Debug.Log("Did not find object");
+            Debug.LogError("Did not find object");
             return null;
         }
         #endregion
@@ -787,10 +786,6 @@ namespace Parrador
             if(netView != null && netController != null)
             {
                 string objectID = Guid.NewGuid().ToString();
-
-
-                Debug.Log("Created ID: " + objectID);
-
                 netView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
                 netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
                 RegisterSpawnedObject(obj);

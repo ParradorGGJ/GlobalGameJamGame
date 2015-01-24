@@ -23,11 +23,17 @@ namespace Parrador
         private int m_PlayerIndex = 0;
         [SerializeField]
         private string m_ObjectID = string.Empty;
+        private string m_Self = string.Empty;
 
         private void Start()
         {
             m_ClientInput = GetComponent<NetworkInputClient>();
             m_ServerInput = GetComponent<NetworkInputServer>();
+            NetworkManager manager = NetworkManager.instance;
+            if(manager != null)
+            {
+                m_Self = manager.GetSelf().name;
+            }
         }
 
         private void OnDestroy()
@@ -186,6 +192,10 @@ namespace Parrador
         public string objectID
         {
             get { return m_ObjectID; }
+        }
+        public string self
+        {
+            get { return m_Self; }
         }
     }
 }
