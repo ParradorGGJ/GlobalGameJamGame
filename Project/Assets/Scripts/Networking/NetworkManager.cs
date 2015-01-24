@@ -333,6 +333,20 @@ namespace Parrador
         private void OnPlayerDisconnected(NetworkPlayer aPlayer)
         {
             Debug.Log("Player Disconnected");
+
+
+
+            m_RegisteringPlayers.RemoveAll(Element => Element.player == aPlayer);
+            m_CurrentPlayers.RemoveAll(Element => Element.player == aPlayer);
+            m_LoadedPlayers.RemoveAll(Element => Element.player == aPlayer);
+
+
+            List<NetworkPlayerStreamInfo> streamInfo = new List<NetworkPlayerStreamInfo>();
+            foreach (NetworkPlayerInfo netPlayer in m_CurrentPlayers)
+            {
+                streamInfo.Add(netPlayer.streamInfo);
+            }
+
         }
 
         private void OnServerInitialized()
@@ -375,6 +389,24 @@ namespace Parrador
             if(Network.isClient)
             {
                 networkView.RPC("OnRegisterPlayer", RPCMode.Server, m_HostName);
+            }
+        }
+
+        private void SendUpdateList(List<NetworkPlayerStreamInfo> aInfo)
+        {
+            ///Send updated info to the clients.
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, aInfo);
+            byte[] playerInfoStream = stream.ToArray();
+
+            if (playerInfoStream == null || playerInfoStream.Length == 0)
+            {
+                Debug.LogError("Failed to serialize current player");
+            }
+            else
+            {
+                networkView.RPC("OnUpdateConnectedUsers", RPCMode.Others, playerInfoStream);
             }
         }
 
@@ -479,20 +511,9 @@ namespace Parrador
                     streamInfo.Add(netPlayer.streamInfo);
                 }
 
-                ///Send updated info to the clients.
-                MemoryStream stream = new MemoryStream();
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, streamInfo);
-                byte[] playerInfoStream = stream.ToArray();
+                SendUpdateList(streamInfo);
 
-                if (playerInfoStream == null || playerInfoStream.Length == 0)
-                {
-                    Debug.LogError("Failed to serialize current player");
-                }
-                else
-                {
-                    networkView.RPC("OnUpdateConnectedUsers", RPCMode.Others, playerInfoStream);
-                }
+                
             }
             else
             {
@@ -542,6 +563,12 @@ namespace Parrador
             {
                 return;
             }
+            if(m_CurrentPlayers.Count != MAX_PLAYERS)
+            {
+                Debug.Log("Need more players");
+                return;
+            }
+
             networkView.RPC("OnStartGame", RPCMode.Others);
             OnStartGame();
             m_RegisteringPlayers.Clear();
