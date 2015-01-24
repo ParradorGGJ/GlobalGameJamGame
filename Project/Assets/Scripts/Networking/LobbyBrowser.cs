@@ -198,7 +198,7 @@ namespace Parrador
                     peerPanel.Start();
                     peerPanel.SetParent(m_ContentPanel);
                     peerPanel.joinButton.onClick.AddListener(() => OnJoin(peerPanel));
-                    peerPanel.hostName = "Host Name: " + data.gameType;
+                    peerPanel.hostName = "Server Name: " + data.gameName;
                     peerPanel.comment = "Comment: " + data.comment;
                     if(i == 0)
                     {
@@ -227,7 +227,16 @@ namespace Parrador
         {
             if(aPanel != null)
             {
-                HostData data = m_Hosts.FirstOrDefault<HostData>(Element => Element.gameName == aPanel.hostName);
+                HostData data = null;
+                foreach(HostData hostData in m_Hosts)
+                {
+                    Debug.Log(hostData.gameName);
+                    if (hostData.gameName == aPanel.hostName.Replace("Server Name: ", ""))
+                    {
+                        data = hostData;
+                        break;
+                    }
+                }
                 if(data != null)
                 {
                     NetworkConnectionError error = Network.Connect(data);
@@ -244,7 +253,7 @@ namespace Parrador
                 }
                 else
                 {
-                    Debug.Log("Failed to get host data");
+                    Debug.Log("Failed to get host data. Searching for: " + aPanel.hostName);
                 }
             }
             else

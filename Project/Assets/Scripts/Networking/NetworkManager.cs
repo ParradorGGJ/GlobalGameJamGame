@@ -44,7 +44,7 @@ namespace Parrador
             }
             else
             {
-                Destroy(this);
+                Destroy(gameObject);
             }
         }
 
@@ -280,10 +280,13 @@ namespace Parrador
         {
             //TODO: Tell Server To Register Me. (Send Name)
             m_CurrentState = NetworkState.LobbyClient;
+            networkView.RPC("OnRegisterPlayer",RPCMode.Server,m_HostName);
+            Debug.Log("Disconnected");
         }
 
         private void OnDisconnectedFromServer(NetworkDisconnection aInfo)
         {
+            Debug.Log("Disconnected");
             if(Network.isServer)
             {
                 //Local Server Disconnected
@@ -301,6 +304,7 @@ namespace Parrador
                 }
                 else if (aInfo == NetworkDisconnection.Disconnected)
                 {
+                    
                     //Successfully disconnected.
                     m_CurrentState = NetworkState.MatchMaking;
                     if(Application.loadedLevelName != MENU_NAME )
@@ -350,6 +354,11 @@ namespace Parrador
                 {
                     Debug.Log("Loaded Level");
                     networkView.RPC("OnRegisterGameLoaded", RPCMode.Server, m_HostName);
+                }
+                else if(Network.isServer)
+                {
+                    Debug.Log("Loaded Level");
+                    OnRegisterGameLoaded(m_HostName);
                 }
             }
         }
@@ -541,6 +550,7 @@ namespace Parrador
         [RPC]
         private void OnStartGame()
         {
+            Debug.Log("Start Game");
             Application.LoadLevel(LEVEL_NAME);
         }
 
