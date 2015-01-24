@@ -227,7 +227,7 @@ namespace Parrador
         {
             if(aPanel != null)
             {
-                HostData data = m_Hosts.FirstOrDefault<HostData>(Element => Element.gameType == aPanel.hostName);
+                HostData data = m_Hosts.FirstOrDefault<HostData>(Element => Element.gameName == aPanel.hostName);
                 if(data != null)
                 {
                     NetworkConnectionError error = Network.Connect(data);
@@ -242,6 +242,14 @@ namespace Parrador
                         m_GameLobby.SetActive(true);
                     }
                 }
+                else
+                {
+                    Debug.Log("Failed to get host data");
+                }
+            }
+            else
+            {
+                Debug.Log("No panel");
             }
 
             
