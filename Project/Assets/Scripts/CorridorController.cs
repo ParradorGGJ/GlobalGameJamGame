@@ -1,32 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CorridorController : MonoBehaviour
+namespace Parrador
 {
-    [SerializeField]
-    private GameObject[] m_TransitionPoints = null;
 
-
-	// Use this for initialization
-	void Start ()
+    public class CorridorController : MonoBehaviour
     {
-	
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-	
-	}
+        [SerializeField]
+        private GameObject[] m_TransitionPoints = null;
 
-    public GameObject GetRandomTransitionPoint()
-    {
-        if (m_TransitionPoints == null) { return null; }
 
-        int randomRoom;
-        randomRoom = Random.Range(0, m_TransitionPoints.Length);
+        // Use this for initialization
+        void Start()
+        {
 
-        return m_TransitionPoints[randomRoom];
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+
+        public GameObject GetRandomTransitionPoint()
+        {
+            if (m_TransitionPoints == null) { return null; }
+
+            int randomRoom;
+            randomRoom = Random.Range(0, m_TransitionPoints.Length);
+
+            return m_TransitionPoints[randomRoom];
+        }
+
     }
-
 }
