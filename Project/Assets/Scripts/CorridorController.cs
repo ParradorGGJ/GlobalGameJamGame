@@ -14,6 +14,9 @@ namespace Parrador
         [SerializeField]
         private Room[] m_RoomList = null;
 
+        [SerializeField]
+        private Transform m_SpawnPoint = null;
+
         // Use this for initialization
         void Start()
         {
@@ -36,7 +39,11 @@ namespace Parrador
 
         public GameObject GetRandomTransitionLocation()
         {
-            if (m_TransitionLocations == null) { return null; }
+            if (m_TransitionLocations == null)
+            {
+                Debug.Log("m_transitionlocations is null on corridor controller");
+                return null;
+            }
 
             int randomRoom;
             randomRoom = Random.Range(0, m_TransitionLocations.Length);
@@ -58,7 +65,7 @@ namespace Parrador
 
         public Transform GetRoomTransitionPoint(RoomType aRoomType)
         {
-            Transform point = null;
+            Transform point = m_SpawnPoint;
 
             if (aRoomType == RoomType.Corridor)
             { 

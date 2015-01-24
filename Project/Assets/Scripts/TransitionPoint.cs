@@ -9,6 +9,7 @@ namespace Parrador
         [SerializeField]
         private RoomType m_DestinationRoom;
 
+        [SerializeField]
         private CorridorController m_Corridor = null;
 
         // Use this for initialization
