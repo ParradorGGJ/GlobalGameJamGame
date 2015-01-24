@@ -163,12 +163,13 @@ namespace Parrador
         }
         public void RegisterSpawnedObject(GameObject aObject)
         {
+            m_ServerGameObjects.Add(aObject);
             NetworkController controller = aObject.GetComponent<NetworkController>();
             if(controller != null && callbackHandler != null)
             {
                 callbackHandler.OnGameObjectSpawned(controller.objectID);
             }
-            m_ServerGameObjects.Add(aObject);
+            
         }
         public GameObject GetSpawnedObject(string aObjectId)
         {
@@ -773,7 +774,11 @@ namespace Parrador
             NetworkView netView = obj.networkView;
             if(netView != null && netController != null)
             {
-                string objectID = new Guid().ToString();
+                string objectID = Guid.NewGuid().ToString();
+
+
+                Debug.Log("Created ID: " + objectID);
+
                 netView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
                 netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
                 m_ServerGameObjects.Add(obj);
