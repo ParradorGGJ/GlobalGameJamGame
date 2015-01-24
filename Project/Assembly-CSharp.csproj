@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CorridorController.cs" />
-     <Compile Include="Assets\Scripts\InteractiveObject.cs" />
      <Compile Include="Assets\Scripts\Networking\GameManager.cs" />
      <Compile Include="Assets\Scripts\Networking\LobbyBrowser.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
@@ -57,8 +56,9 @@
      <Compile Include="Assets\Scripts\Networking\RoomType.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\Room.cs" />
+     <Compile Include="Assets\Scripts\RoomObjects\InteractiveObject.cs" />
+     <Compile Include="Assets\Scripts\RoomObjects\WasteBasketBehaviour.cs" />
      <Compile Include="Assets\Scripts\TransitionPoint.cs" />
-     <Compile Include="Assets\Scripts\WasteBasketBehaviour.cs" />
      <None Include="Assets\TEST COMMIT.txt" />
      <None Include="Assets\Sounds\Ref.txt" />
  <Reference Include="UnityEngine.UI">
