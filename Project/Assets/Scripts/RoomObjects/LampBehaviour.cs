@@ -4,13 +4,8 @@ using System.Collections;
 
 namespace Parrador
 {
-    public class LampBehaviour : MonoBehaviour, InteractiveObject
+    public class LampBehaviour : GenericObjectBehaviour
     {
-
-        [SerializeField]
-        private bool m_Used = false;
-
-        private ObjectType m_ObjectType;
 
         [SerializeField]
         private Light m_Light = null;
@@ -18,10 +13,10 @@ namespace Parrador
         // Use this for initialization
         void Start()
         {
-            m_ObjectType = ObjectType.Lamp;
+            objectType = ObjectType.Lamp;
             if (m_Light == null )
             {
-                Debug.Log(m_ObjectType + " ObjectType not set up properly. ID: " + GetInstanceID());
+                Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
             }
         }
 
@@ -31,47 +26,10 @@ namespace Parrador
             UpdateState();  //only here while testing, will be called through interfact externally
         }
 
-        #region INTERFACE
-        public void UpdateState()
+        public override void ObjectSpecificStateUpate()
         {
-            m_Light.enabled = m_Used;
-        }
-        
-        public ObjectType GetObjectType()
-        {
-            return m_ObjectType;
+            m_Light.enabled = used;
         }
 
-        public void SetState(bool aState)
-        {
-            m_Used = aState;
-        }
-
-        public bool GetState()
-        {
-            return m_Used;
-        }
-
-        public Vector3 GetPosition()
-        {
-            return transform.position;
-        }
-
-        public void SetPosition(Vector3 aPosition)
-        {
-            transform.position = aPosition;
-        }
-
-        public Quaternion GetRotation()
-        {
-            return transform.rotation;
-        }
-
-        public void SetRotation(Quaternion aRotation)
-        {
-            transform.rotation = aRotation;
-        }
-
-        #endregion
     }
 }

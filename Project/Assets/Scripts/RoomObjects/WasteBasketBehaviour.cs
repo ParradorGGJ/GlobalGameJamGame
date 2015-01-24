@@ -4,11 +4,8 @@ using System.Collections;
 
 namespace Parrador
 {
-    public class WasteBasketBehaviour : MonoBehaviour, InteractiveObject
+    public class WasteBasketBehaviour : GenericObjectBehaviour
     {
-
-        [SerializeField]
-        private bool m_Used = false;
 
         [SerializeField]
         private Transform m_UsedStateTransform = null;
@@ -16,16 +13,13 @@ namespace Parrador
         [SerializeField]
         private Transform m_NormalStateTransform = null;
 
-        private ObjectType m_ObjectType;
-
-
         // Use this for initialization
         void Start()
         {
-            m_ObjectType = ObjectType.WasteBasket;
+            objectType = ObjectType.WasteBasket;
             if ( (m_UsedStateTransform == null || m_NormalStateTransform == null) )
             {
-                Debug.Log(m_ObjectType + " ObjectType not set up properly. ID: " + GetInstanceID());
+                Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
             }
         }
 
@@ -40,7 +34,7 @@ namespace Parrador
         {
             if (m_UsedStateTransform == null || m_NormalStateTransform == null) { return; }
             
-            if (m_Used)
+            if (used)
             {
                 transform.position = m_UsedStateTransform.position;
                 transform.rotation = m_UsedStateTransform.rotation;
@@ -52,48 +46,10 @@ namespace Parrador
             }
         }
 
-
-        #region INTERFACE
-        public void UpdateState()
+        public override void ObjectSpecificStateUpate()
         {
             UpdateObjectPositionRotation();
         }
-        
-        public ObjectType GetObjectType()
-        {
-            return m_ObjectType;
-        }
 
-        public void SetState(bool aState)
-        {
-            m_Used = aState;
-        }
-
-        public bool GetState()
-        {
-            return m_Used;
-        }
-
-        public Vector3 GetPosition()
-        {
-            return transform.position;
-        }
-
-        public void SetPosition(Vector3 aPosition)
-        {
-            transform.position = aPosition;
-        }
-
-        public Quaternion GetRotation()
-        {
-            return transform.rotation;
-        }
-
-        public void SetRotation(Quaternion aRotation)
-        {
-            transform.rotation = aRotation;
-        }
-
-        #endregion
     }
 }
