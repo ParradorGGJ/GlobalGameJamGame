@@ -46,6 +46,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Networking\LobbyBrowser.cs" />
+     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
+     <Compile Include="Assets\Scripts\Networking\ObjectType.cs" />
+     <Compile Include="Assets\Scripts\Networking\PeerPanel.cs" />
+     <Compile Include="Assets\Scripts\Networking\RoomType.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <None Include="Assets\Designs\ItemList.txt" />
  <Reference Include="UnityEngine.UI">
