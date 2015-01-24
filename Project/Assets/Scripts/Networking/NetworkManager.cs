@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Parrador
 {
-    public enum NetworkState
+    public enum NetworkMode
     {
         Offline,
         MatchMaking,
@@ -19,6 +19,11 @@ namespace Parrador
         GameClient
     }
 
+    public interface INetworkCallbackHandler
+    {
+        void OnGameStart();
+    }
+
     [RequireComponent(typeof(NetworkView))]
     public class NetworkManager : MonoBehaviour
     {
@@ -26,7 +31,7 @@ namespace Parrador
         public const int MAX_PLAYERS = 2;
         public const string GAME_NAME = "Parrador_Online";
 
-        private const string LEVEL_NAME = "Level";
+        private const string LEVEL_NAME = "Proto_Level";
         private const string MENU_NAME = "MatchMaking";
 
         private static NetworkManager s_Instance = null;
@@ -57,11 +62,14 @@ namespace Parrador
             }
         }
 
-        private NetworkState m_CurrentState = NetworkState.MatchMaking;
+        private NetworkMode m_CurrentState = NetworkMode.MatchMaking;
         private List<NetworkPlayerInfo> m_CurrentPlayers = new List<NetworkPlayerInfo>();
         //private List<NetworkPlayer> m_ConnectedPlayers = new List<NetworkPlayer>();
         private List<NetworkPlayerInfo> m_RegisteringPlayers = new List<NetworkPlayerInfo>();
         private List<NetworkPlayerInfo> m_LoadedPlayers = new List<NetworkPlayerInfo>();
+
+        private List<GameObject> m_ServerGameObjects = new List<GameObject>();
+
         private int m_RegisteringUsers = 0;
         #region MEMBERS
         [SerializeField]
@@ -72,6 +80,8 @@ namespace Parrador
         private string m_Comment = string.Empty; //comment to lobby -- applicable to server only
         [SerializeField]
         private int m_PortNumber = 25006; //the port for the server..
+        [SerializeField]
+        private List<GameObject> m_Prefabs = new List<GameObject>();
         
         public string hostName
         {
@@ -96,21 +106,77 @@ namespace Parrador
         {
             get { return m_CurrentPlayers.Count; }
         }
-        public NetworkState networkState
+        public NetworkMode networkState
         {
             get { return m_CurrentState; }
             set { m_CurrentState = value; }
+        }
+        public INetworkCallbackHandler callbackHandler
+        {
+            get;
+            set;
         }
         public void CloseServer()
         {
             Network.Disconnect();
             ResetState();
         }
+        public GameObject GetPrefabByName(string aName)
+        {
+            return m_Prefabs.FirstOrDefault<GameObject>(Element => Element.name == aName);
+        }
+        public GameObject GetPrefabByIndex(int aIndex)
+        {
+            if(aIndex >= 0 && aIndex <= m_Prefabs.Count)
+            {
+                return m_Prefabs[aIndex];
+            }
+            return null;
+        }
+        public GameObject GetPrefabByID(int aID)
+        {
+            return m_Prefabs.FirstOrDefault<GameObject>(Element => Element.GetInstanceID() == aID);
+        }
+        public NetworkPlayerInfo GetPlayer(string aName)
+        {
+            return m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == aName);
+        }
+        public int GetPlayerIndex(NetworkPlayerInfo aInfo)
+        {
+            if(string.IsNullOrEmpty(aInfo.name))
+            {
+                return -1;
+            }
+            for(int i = 0; i < m_CurrentPlayers.Count; i++)
+            {
+                if(m_CurrentPlayers[i].name == aInfo.name)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        public void RegisterSpawnedObject(GameObject aObject)
+        {
+            m_ServerGameObjects.Add(aObject);
+        }
+        public GameObject GetSpawnedObject(string aObjectId)
+        {
+            foreach (GameObject gObject in m_ServerGameObjects)
+            {
+                NetworkController controller = gObject.GetComponent<NetworkController>();
+                if (controller.objectID == aObjectId)
+                {
+                    return gObject;
+                }
+            }
+            return null;
+        }
         #endregion
 
         private void ResetState()
         {
-            m_CurrentState = NetworkState.MatchMaking;
+            m_CurrentState = NetworkMode.MatchMaking;
             m_CurrentPlayers.Clear();
             m_RegisteringPlayers.Clear();
             m_RegisteringUsers = 0;
@@ -279,7 +345,7 @@ namespace Parrador
         private void OnConnectedToServer()
         {
             //TODO: Tell Server To Register Me. (Send Name)
-            m_CurrentState = NetworkState.LobbyClient;
+            m_CurrentState = NetworkMode.LobbyClient;
             networkView.RPC("OnRegisterPlayer",RPCMode.Server,m_HostName);
             Debug.Log("Disconnected");
         }
@@ -306,7 +372,7 @@ namespace Parrador
                 {
                     
                     //Successfully disconnected.
-                    m_CurrentState = NetworkState.MatchMaking;
+                    m_CurrentState = NetworkMode.MatchMaking;
                     if(Application.loadedLevelName != MENU_NAME )
                     {
                         Application.LoadLevel(MENU_NAME);
@@ -322,7 +388,7 @@ namespace Parrador
 
         private void OnNetworkInstantiate(NetworkMessageInfo aInfo)
         {
-
+            
         }
 
         private void OnPlayerConnected(NetworkPlayer aPlayer)
@@ -356,7 +422,7 @@ namespace Parrador
             playerInfo.name = m_HostName;
             playerInfo.player = Network.player;
             m_CurrentPlayers.Add(playerInfo);
-            m_CurrentState = NetworkState.LobbyServer;
+            m_CurrentState = NetworkMode.LobbyServer;
         }
 
         private void OnLevelWasLoaded(int aLevelIndex)
@@ -434,7 +500,7 @@ namespace Parrador
                 return;
             }
             //Ignore players while the network is locked, if the network is locked its because the game has started.
-            if(networkState != NetworkState.LobbyServer)
+            if(networkState != NetworkMode.LobbyServer)
             {
                 networkView.RPC("OnReceiveRegisterResult", aInfo.sender, false);
                 return;
@@ -481,7 +547,7 @@ namespace Parrador
             {
                 Debug.Log("Failed to register with server");
                 Network.Disconnect();
-                m_CurrentState = NetworkState.MatchMaking;
+                m_CurrentState = NetworkMode.MatchMaking;
             }
         }
 
@@ -564,11 +630,11 @@ namespace Parrador
             {
                 return;
             }
-            if(m_CurrentPlayers.Count != MAX_PLAYERS)
-            {
-                Debug.Log("Need more players");
-                return;
-            }
+            //if(m_CurrentPlayers.Count != MAX_PLAYERS)
+            //{
+            //    Debug.Log("Need more players");
+            //    return;
+            //}
 
             networkView.RPC("OnStartGame", RPCMode.Others);
             OnStartGame();
@@ -616,13 +682,137 @@ namespace Parrador
             Debug.Log("Game Loaded !!!!");
             if(Network.isClient)
             {
-                m_CurrentState = NetworkState.GameClient;
+                m_CurrentState = NetworkMode.GameClient;
             }
             else
             {
-                m_CurrentState = NetworkState.GameServer;
+                m_CurrentState = NetworkMode.GameServer;
+            }
+            if(callbackHandler != null)
+            {
+                callbackHandler.OnGameStart();
             }
         }
+
+        private void SpawnObject(int aID)
+        {
+            SpawnObject(aID, Vector3.zero, Quaternion.identity);
+        }
+
+        private void SpawnObject(int aID, Vector3 aPosition, Quaternion aRotation)
+        {
+            if(Network.isClient)
+            {
+                networkView.RPC("OnNetworkSpawnObject", RPCMode.Server, aID, m_HostName, aPosition, aRotation);
+            }
+            else if(Network.isServer)
+            {
+                OnNetworkSpawnObject(aID, m_HostName, aPosition, aRotation);
+            }
+        }
+        private void DespawnObject(string aObjectID)
+        {
+            if(Network.isClient)
+            {
+                networkView.RPC("OnNetworkDespawnObject", RPCMode.Server, aObjectID, m_HostName);
+            }
+            else
+            {
+                OnNetworkDespawnObject(aObjectID, m_HostName);
+            }
+        }
+
+        [RPC]
+        private void OnNetworkSpawnObject(int aID, string aPlayer, Vector3 aPosition, Quaternion aRotation)
+        {
+            if(!Network.isServer)
+            {
+                Debug.LogError("Cannot spawn objects on the client. Use SpawnObject instead.");
+                return;
+            }
+
+            GameObject prefab = GetPrefabByID(aID);
+            NetworkPlayerInfo player = GetPlayer(aPlayer);
+            if(prefab == null)
+            {
+                Debug.LogError("Failed to SpawnObject, Missing prefab: id(" + aID + ").");
+                return;
+            }
+            if(string.IsNullOrEmpty(player.name))
+            {
+                Debug.LogError("Failed to SpawnObject, Missing player: " + aPlayer);
+                return;
+            }
+            int playerIndex = GetPlayerIndex(player);
+            if(playerIndex == -1)
+            {
+                Debug.LogError("Failed to SpawnObject, Invalid PlayerIndex: " + aPlayer);
+                return;
+            }
+            GameObject obj = Network.Instantiate(prefab, aPosition, aRotation, playerIndex) as GameObject;
+            NetworkController netController = obj.GetComponent<NetworkController>();
+            NetworkView netView = obj.networkView;
+            if(netView != null && netController != null)
+            {
+                string objectID = new Guid().ToString();
+                networkView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
+                netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
+                m_ServerGameObjects.Add(obj);
+            }
+            else if(netView == null)
+            {
+                Debug.LogWarning("Spawned a gameobject on the network but there is no network view associated with it.");
+            }
+            else if(netController == null)
+            {
+                Debug.LogWarning("Spawned a gameobject on the network but there is no network controller associated with it.");
+            }
+        }
+
+        [RPC]
+        private void OnNetworkDespawnObject(string aObjectID, string aInvoker)
+        {
+            //Maybe check invoker if were only allowing the owners to delete their own objects
+            //Maybe check admin status / server status etc...
+            if(!Network.isServer)
+            {
+                return;
+            }
+
+            GameObject spawnedObject = GetSpawnedObject(aObjectID);
+            if(spawnedObject != null)
+            {
+                networkView.RPC("OnNetworkDestroyObject", RPCMode.OthersBuffered, aObjectID);
+                Destroy(spawnedObject);
+            }
+            else
+            {
+                Debug.LogError("Failed to destroy object. Object does not exist. ID = " + aObjectID);
+            }
+            
+
+        }
+
+        [RPC]
+        private void OnNetworkDestroyObject(string aObjectID)
+        {
+            if(!Network.isClient)
+            {
+                Debug.LogError("Only clients are responsible for destroying their own scene objects. This should be invoked from the server.");
+                return;
+            }
+            GameObject spawnedObject = GetSpawnedObject(aObjectID);
+            if(spawnedObject != null)
+            {
+                Destroy(spawnedObject);
+            }
+            else
+            {
+                Debug.LogError("Failed to destroy object. Object does not exist. ID = " + aObjectID);
+            }   
+            
+        }
+
 
         #endregion
 
