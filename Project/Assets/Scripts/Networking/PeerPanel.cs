@@ -25,6 +25,10 @@ namespace Parrador
         {
             m_RectTransform = GetComponent<RectTransform>();
         }
+        public void SetParent(Transform aParent)
+        {
+            m_RectTransform.SetParent(aParent);
+        }
 
         public string hostName
         {
