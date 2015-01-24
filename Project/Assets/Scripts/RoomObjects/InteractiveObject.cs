@@ -4,7 +4,7 @@
 namespace Parrador
 {
 
-    interface InteractiveObject
+    public interface InteractiveObject
     {
         ObjectType GetObjectType();
 

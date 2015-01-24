@@ -10,7 +10,7 @@ namespace Parrador
         private RoomType m_UniqueRoomType;
 
         [SerializeField]
-        private GameObject[] m_RoomObjects;
+        private InteractiveObject[] m_RoomObjects;
 
         [SerializeField]
         private Transform m_TransitionLocation;
@@ -30,7 +30,7 @@ namespace Parrador
 
         }
 
-        public GameObject[] GetRoomObjects()
+        public InteractiveObject[] GetRoomObjects()
         {
             return m_RoomObjects;
         }
