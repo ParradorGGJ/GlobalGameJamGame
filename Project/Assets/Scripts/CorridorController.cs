@@ -23,6 +23,8 @@ namespace Parrador
             {
                 m_TransitionScripts[i] = m_TransitionLocations[i].GetComponent<TransitionPoint>();
             }
+
+            RandomizeTransitionPointDestinations();
         }
 
         // Update is called once per frame
