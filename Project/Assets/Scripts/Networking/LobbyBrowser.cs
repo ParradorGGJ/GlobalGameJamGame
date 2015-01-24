@@ -44,7 +44,7 @@ namespace Parrador
                 int playerCount =  manager.connectedPlayers;
                 m_PlayerCount.text = playerCount.ToString();
 
-                if (m_GameLobby.activeSelf == true && manager.networkState == NetworkState.MatchMaking)
+                if (m_GameLobby.activeSelf == true && manager.networkState == NetworkMode.MatchMaking)
                 {
                     LobbySetup();
                 }
@@ -143,7 +143,7 @@ namespace Parrador
                 Debug.LogError("Failed to host server because the lobby name was left empty");
             }
             ///Try to initialize the server
-            NetworkConnectionError error = Network.InitializeServer(NetworkManager.MAX_PLAYERS, portNumber, !Network.HavePublicAddress());
+            NetworkConnectionError error = Network.InitializeServer(NetworkManager.MAX_CONNECTIONS, portNumber, !Network.HavePublicAddress());
             if(error == NetworkConnectionError.NoError)
             {
                 ///If server initialization works register the host with the master server.
@@ -257,7 +257,7 @@ namespace Parrador
                         NetworkManager manager = NetworkManager.instance;
                         if(manager != null)
                         {
-                            manager.networkState = NetworkState.LobbyClient;
+                            manager.networkState = NetworkMode.LobbyClient;
                         }
                         m_HostSettings.SetActive(false);
                         m_Lobby.SetActive(false);
@@ -275,6 +275,12 @@ namespace Parrador
             }
 
             
+        }
+
+
+        void OnInstantiateObject()
+        {
+
         }
 
     }

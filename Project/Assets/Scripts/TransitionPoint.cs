@@ -11,6 +11,8 @@ namespace Parrador
 
         private CorridorController m_Corridor = null;
 
+        private float m_TransitionDistanceBuffer = 0.5f;
+
         // Use this for initialization
         void Start()
         {
@@ -54,7 +56,7 @@ namespace Parrador
                 }
 
                 Transform movePoint = m_Corridor.GetRoomTransitionPoint(m_DestinationRoom);
-                collider.transform.position = movePoint.position;
+                collider.transform.position = movePoint.position + (m_TransitionDistanceBuffer * movePoint.forward);
                 collider.transform.rotation = movePoint.rotation;
             }
         }
