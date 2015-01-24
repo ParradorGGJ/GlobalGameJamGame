@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\RoomObjects\GenericObjectBehaviour.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\InteractiveObject.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\LampBehaviour.cs" />
+     <Compile Include="Assets\Scripts\RoomObjects\RockingChairBehaviour.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\WasteBasketBehaviour.cs" />
      <Compile Include="Assets\Scripts\TransitionPoint.cs" />
      <None Include="Assets\TEST COMMIT.txt" />

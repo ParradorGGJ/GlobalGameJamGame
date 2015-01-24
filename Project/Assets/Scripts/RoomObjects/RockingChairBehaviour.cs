@@ -1,18 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-
 namespace Parrador
 {
-    public class BookshelfBehaviour : GenericObjectBehaviour
+    public class RockingChairBehaviour : GenericObjectBehaviour
     {
 
         // Use this for initialization
         void Start()
         {
-            objectType = ObjectType.Bookshelf;
-            
-            //TODO: check whatever is needed for bookshelf to function
+            objectType = ObjectType.Chair;
+
+            //TODO: check whatever is needed for chair to function
             //if (false)
             //{
             //    Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
@@ -27,7 +26,7 @@ namespace Parrador
 
         public override void ObjectSpecificStateUpate()
         {
-            //TODO: Whatever the bookshelf does
+            //TODO: Whatever the chair does
         }
     }
 }
