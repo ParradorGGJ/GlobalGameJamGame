@@ -178,9 +178,11 @@ namespace Parrador
                 NetworkController controller = gObject.GetComponent<NetworkController>();
                 if (controller.objectID == aObjectId)
                 {
+                    Debug.Log("Found Object");
                     return gObject;
                 }
             }
+            Debug.Log("Did not find object");
             return null;
         }
         #endregion
@@ -781,7 +783,7 @@ namespace Parrador
 
                 netView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
                 netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
-                m_ServerGameObjects.Add(obj);
+                RegisterSpawnedObject(obj);
             }
             else if(netView == null)
             {

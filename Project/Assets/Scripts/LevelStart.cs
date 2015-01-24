@@ -93,10 +93,12 @@ namespace Parrador
         public void OnGameObjectSpawned(string aID)
         {
             NetworkManager manager = NetworkManager.instance;
+            
             if(manager != null && m_Player == null)
             {
                 m_Player = manager.GetSpawnedObject(aID);
             }
+
         }
     }
 
