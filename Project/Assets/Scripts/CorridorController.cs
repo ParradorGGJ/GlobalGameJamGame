@@ -22,6 +22,7 @@ namespace Parrador
             for (int i = 0 ; i < m_TransitionLocations.Length ; i++)
             {
                 m_TransitionScripts[i] = m_TransitionLocations[i].GetComponent<TransitionPoint>();
+                m_TransitionScripts[i].controller = this;
             }
 
             RandomizeTransitionPointDestinations();
@@ -55,7 +56,20 @@ namespace Parrador
             
         }
 
-        //public 
+        public Transform GetRoomTransitionPoint(RoomType aRoomType)
+        {
+            Transform point = null;
+            for (int i = 0; i < m_RoomList.Length; i++)
+            {
+                if (m_RoomList[i].uniqueID == aRoomType)
+                {
+                    point = m_RoomList[i].transitionLocation;
+                    break;
+                }
+            }
+
+            return point;
+        }
 
     }
 }
