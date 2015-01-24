@@ -6,6 +6,10 @@ namespace Parrador
     {
         ObjectType GetObjectType();
 
+        void SetState(bool aState);
+
+        bool GetState();
+
         void UpdateState();
 
     }

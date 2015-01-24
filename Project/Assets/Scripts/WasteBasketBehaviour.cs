@@ -61,7 +61,16 @@ namespace Parrador
             UpdateObjectPositionRotation();
         }
 
-        #endregion
+        public void SetState(bool aState)
+        {
+            m_Used = aState;
+        }
 
+        public bool GetState()
+        {
+            return m_Used;
+        }
+
+        #endregion
     }
 }
