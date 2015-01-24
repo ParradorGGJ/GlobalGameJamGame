@@ -32,14 +32,14 @@ namespace Parrador
         }
 
         #region INTERFACE
-        public ObjectType GetObjectType()
-        {
-            return m_ObjectType;
-        }
-
         public void UpdateState()
         {
             m_Light.enabled = m_Used;
+        }
+        
+        public ObjectType GetObjectType()
+        {
+            return m_ObjectType;
         }
 
         public void SetState(bool aState)
@@ -50,6 +50,26 @@ namespace Parrador
         public bool GetState()
         {
             return m_Used;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
+        public void SetPosition(Vector3 aPosition)
+        {
+            transform.position = aPosition;
+        }
+
+        public Quaternion GetRotation()
+        {
+            return transform.rotation;
+        }
+
+        public void SetRotation(Quaternion aRotation)
+        {
+            transform.rotation = aRotation;
         }
 
         #endregion

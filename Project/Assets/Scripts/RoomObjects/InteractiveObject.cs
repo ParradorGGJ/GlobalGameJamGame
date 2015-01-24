@@ -1,4 +1,6 @@
-﻿
+﻿using UnityEngine;
+
+
 namespace Parrador
 {
 
@@ -7,10 +9,14 @@ namespace Parrador
         ObjectType GetObjectType();
 
         void SetState(bool aState);
-
         bool GetState();
 
         void UpdateState();
 
+        Vector3 GetPosition();
+        void SetPosition(Vector3 aPosition);
+
+        Quaternion GetRotation();
+        void SetRotation(Quaternion aRotation);
     }
 }
