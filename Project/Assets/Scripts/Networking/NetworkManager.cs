@@ -774,7 +774,7 @@ namespace Parrador
             if(netView != null && netController != null)
             {
                 string objectID = new Guid().ToString();
-                networkView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
+                netView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
                 netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
                 m_ServerGameObjects.Add(obj);
             }
