@@ -57,6 +57,7 @@ namespace Parrador
                     break;
                 case ObjectType.WasteBasket:
                     //TODO: HANDLE CASE
+                    UpdateObjectPositionRotation();
                     break;
             }
 
@@ -66,6 +67,8 @@ namespace Parrador
 
         private void UpdateObjectPositionRotation()
         {
+            if (m_UsedStateTransform == null || m_NormalStateTransform == null) { return; }
+            
             if (m_Used)
             {
                 transform.position = m_UsedStateTransform.position;
