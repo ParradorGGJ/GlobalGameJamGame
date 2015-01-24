@@ -7,6 +7,7 @@ namespace Parrador
         RoomA,
         RoomB,
         RoomC,
-        RoomD
+        RoomD,
+        Corridor
     }
 }
