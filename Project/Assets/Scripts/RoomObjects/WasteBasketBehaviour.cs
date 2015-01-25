@@ -37,7 +37,7 @@ namespace Parrador
 
         private void UpdateObjectPositionRotation()
         {
-            transform.position = Vector3.Lerp(transform.position, m_CarryAnchorPoint.position, Time.deltaTime * 7.0f);
+            transform.position = Vector3.Lerp(transform.position, m_CarryAnchorPoint.position, Time.deltaTime * 8.5f);
             transform.rotation = m_CarryAnchorPoint.rotation;
         }
 
@@ -61,7 +61,7 @@ namespace Parrador
             if (Input.GetKeyUp(KeyCode.E))
             {
                 used = !used;
-                Debug.Log("E pressed by player, used state = " + used);
+                //Debug.Log("E pressed by player, used state = " + used);
                 if (used == true)
                 {
                     m_CarryAnchorPoint = collider.gameObject.transform.FindChild("CarryAnchor");
