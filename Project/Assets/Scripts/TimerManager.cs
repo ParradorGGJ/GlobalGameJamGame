@@ -9,7 +9,7 @@ namespace Parrador
 		[SerializeField]
         public Text m_Time;
 
-        private float m_MaxTime = 180.0f;
+        private float m_MaxTime = 20.0f;
         private float m_TimeRemaining;
 
         void Start()

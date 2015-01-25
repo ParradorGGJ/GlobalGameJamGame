@@ -59,7 +59,7 @@ namespace Parrador
 
         [SerializeField]
         private bool m_GameOver = false;
-        private bool m_GameOverState; // true = win
+        private bool m_GameOverState = false; // true = win
 
         private void Start()
         {
@@ -70,7 +70,7 @@ namespace Parrador
             }
         }
         
-        private void Update()
+        void Update()
         {
         	if( m_GameOver == true )
         	{
@@ -130,7 +130,7 @@ namespace Parrador
         
         public void OnGameOver()
         {
-        	
+        	Application.LoadLevel("End_Game_Scene");
         }
 
         public CorridorController corridorController
