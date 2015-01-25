@@ -79,7 +79,8 @@ namespace Parrador
 
         public void AddTime(float aBonusTime)
         {
-            instance.m_TimeRemaining += aBonusTime;
+            Player player = NetworkWorld.GetSelf();
+            NetworkWorld.SendAddTime(player, 5.0f);
         }
 
         public void OnStateChange(NetworkID aObjectID, object aState)
@@ -89,6 +90,15 @@ namespace Parrador
             {
                 gob.OnStateChange(aState);
             }
+        }
+
+        public float GetGameTime()
+        {
+            return m_TimeRemaining;
+        }
+        public void SetGameTime(float aTime)
+        {
+            m_TimeRemaining = aTime;
         }
 
         public void OnGameStart()

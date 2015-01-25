@@ -148,6 +148,14 @@ namespace Parrador
                 NetworkManager.instance.SendObjectChange(aID, aNewState);
             }
         }
+        public static void SendAddTime(Player aPlayer, float aTime)
+        {
+            if(NetworkManager.instance != null)
+            {
+                NetworkManager.instance.SendAddTime(aPlayer, aTime);
+            }
+        }
+
     }
 }
 

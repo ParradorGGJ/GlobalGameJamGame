@@ -28,6 +28,8 @@ namespace Parrador
     public interface IGameCallbackHandler
     {
         void OnStateChange(NetworkID aID, object aState);
+        float GetGameTime();
+        void SetGameTime(float aTime);
     }
 
 
@@ -661,6 +663,14 @@ namespace Parrador
         [RPC]
         private void OnStartGame()
         {
+            if(Network.isServer)
+            {
+                m_CurrentState = NetworkMode.GameServer;
+            }
+            else if(Network.isClient)
+            {
+                m_CurrentState = NetworkMode.GameClient;
+            }
             Debug.Log("Start Game");
             m_LoadedTimerFinish = false;
             StartCoroutine(GameLoadRoutine());
@@ -1003,7 +1013,7 @@ namespace Parrador
         }
 
         [RPC]
-        public void ChangeObjectState(string aObjectID, byte[] aState)
+        private void ChangeObjectState(string aObjectID, byte[] aState)
         {
             if(!Network.isServer)
             {
@@ -1015,7 +1025,7 @@ namespace Parrador
         }
 
         [RPC]
-        public void OnChangeObjectState(string aObjectID, byte[] aState)
+        private void OnChangeObjectState(string aObjectID, byte[] aState)
         {
             if(aState == null)
             {
@@ -1045,6 +1055,55 @@ namespace Parrador
             
 
         }
+
+        public void SendAddTime(Player aPlayer, float aTime)
+        {
+            if(aPlayer == null)
+            {
+                return;
+            }
+
+            if(Network.isClient)
+            {
+                networkView.RPC("OnAddTime",RPCMode.Server ,aPlayer.name, aTime);
+            }
+            else if(Network.isServer)
+            {
+                OnAddTime(aPlayer.name, aTime);
+            }
+        }
+        [RPC]
+        public void OnAddTime(string aPlayer, float aTime)
+        {
+            if(!Network.isServer)
+            {
+                return;
+            }
+
+            if(gameCallbackHandler == null)
+            {
+                Debug.LogError("Missing Game Callback Handler");
+                return;
+            }
+
+            //TODO: Get Game Time (gt + aTime)
+            float totalTime = gameCallbackHandler.GetGameTime() + aTime;
+            networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, totalTime);
+            SendSynchronizeTime(totalTime);
+
+        }
+        [RPC]
+        private void SendSynchronizeTime(float aTime)
+        {
+            //TODO: Set Game Time
+            if(gameCallbackHandler != null)
+            {
+                gameCallbackHandler.SetGameTime(aTime);
+            }
+        }
+
+
+        
 
         #endregion
 
