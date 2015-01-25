@@ -8,13 +8,16 @@ namespace Parrador
     {
 
         [SerializeField]
-        private Light m_Light = null;
+        private Light m_BottomLight = null;
+
+        [SerializeField]
+        private Light m_TopLight = null;
 
         // Use this for initialization
         void Start()
         {
             objectType = ObjectType.Lamp;
-            if (m_Light == null )
+            if (m_BottomLight == null || m_TopLight == null)
             {
                 Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
             }
@@ -28,7 +31,8 @@ namespace Parrador
 
         public override void ObjectSpecificStateUpate()
         {
-            m_Light.enabled = used;
+            m_BottomLight.enabled = used;
+            m_TopLight.enabled = used;
         }
 
     }
