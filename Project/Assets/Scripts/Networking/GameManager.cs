@@ -156,5 +156,11 @@ namespace Parrador
 			get { return m_GameOverState;	}
 			set { m_GameOverState = value;	}
 		}
+
+        public float timeLimit
+        {
+            get { return m_TimeLimit; }
+            set { m_TimeLimit = value; }
+        }
     }
 }

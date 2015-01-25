@@ -15,6 +15,7 @@ namespace Parrador
         void Start()
         {
         	GameManager.instance.timeRemaining = m_MaxTime;
+            GameManager.instance.timeLimit = m_MaxTime;
             m_TimeRemaining = GameManager.instance.timeRemaining;
         }
 

@@ -55,6 +55,11 @@ namespace Parrador
                     }
                 }
 
+                if (m_DestinationRoom != RoomType.Corridor)
+                {
+
+                }
+                
                 Transform movePoint = m_Corridor.GetRoomTransitionPoint(m_DestinationRoom);
                 collider.transform.position = movePoint.position + (m_TransitionDistanceBuffer * movePoint.forward);
                 collider.transform.rotation = movePoint.rotation;
