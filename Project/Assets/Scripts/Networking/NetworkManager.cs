@@ -35,7 +35,7 @@ namespace Parrador
     public class NetworkManager : MonoBehaviour
     {
         public const int MAX_CONNECTIONS = 8;
-        public const int MAX_PLAYERS = 2;
+        public const int MAX_PLAYERS = 3;
         public const string GAME_NAME = "Parrador_Online";
 
         private const string LEVEL_NAME = "Proto_Level";
