@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\Networking\PeerPanel.cs" />
      <Compile Include="Assets\Scripts\Networking\Player.cs" />
      <Compile Include="Assets\Scripts\Networking\RoomType.cs" />
+     <Compile Include="Assets\Scripts\PlaySoundTrigger.cs" />
      <Compile Include="Assets\Scripts\Player\NetworkController.cs" />
      <Compile Include="Assets\Scripts\Player\NetworkInputClient.cs" />
      <Compile Include="Assets\Scripts\Player\NetworkInputServer.cs" />
