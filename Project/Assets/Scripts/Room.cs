@@ -25,6 +25,14 @@ namespace Parrador
         }
     }
 
+    public enum DeteriorationLevel
+    {
+        Prestine,
+        LowGrunge,
+        MediumGrunge,
+        HeavyGrunge
+    }
+
     public class Room : MonoBehaviour
     {
         [SerializeField]
@@ -38,6 +46,18 @@ namespace Parrador
 
         [SerializeField]
         private int m_TimesVisitedByOtherPlayer = 0;
+
+        [SerializeField]
+        private bool m_UpdateDeteriorationState = false;
+
+        [SerializeField]
+        private DeteriorationLevel m_Deterioration = DeteriorationLevel.Prestine;
+
+        [SerializeField]
+        private MeshRenderer m_RoomRenderer;
+
+        [SerializeField]
+        private Material[] m_RoomMaterials;
 
         // Use this for initialization
         void Start()
@@ -71,6 +91,41 @@ namespace Parrador
             {
                 Debug.LogError("Created a room while not playing the game...");
             }
+        }
+
+
+        void Update()
+        {
+            if (m_UpdateDeteriorationState)
+            {
+                //testing
+                int newState = (int)m_Deterioration + 1;
+                if (newState > (int)DeteriorationLevel.HeavyGrunge)
+                {
+                    newState = 0;
+                }
+                m_Deterioration = (DeteriorationLevel)newState;
+                UpdateMaterial(newState);
+                //end testing
+                m_UpdateDeteriorationState = false;
+            }
+
+        }
+
+        private void UpdateMaterial(int aMaterialIndex)
+        {
+            if (m_RoomRenderer == null)
+            {
+                Debug.Log("renderer null :(");
+                return;
+            }
+            if (aMaterialIndex >= m_RoomMaterials.Length)
+            {
+                Debug.Log("index out of range for materials");
+                return;
+            }
+
+            m_RoomRenderer.material = m_RoomMaterials[aMaterialIndex];
         }
 
         public RoomType uniqueID
