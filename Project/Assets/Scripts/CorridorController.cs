@@ -88,5 +88,10 @@ namespace Parrador
             return point;
         }
 
+        public Room[] rooms
+        {
+            get { return m_RoomList; }
+            set { m_RoomList = value; }
+        }
     }
 }

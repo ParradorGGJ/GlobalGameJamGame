@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 
@@ -14,8 +15,9 @@ namespace Parrador
         private Light m_TopLight = null;
 
         // Use this for initialization
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             objectType = ObjectType.Lamp;
             if (m_BottomLight == null || m_TopLight == null)
             {
@@ -41,9 +43,26 @@ namespace Parrador
 
             if (Input.GetKeyUp(KeyCode.E))
             {
-                used = !used;
+
+                NetworkWorld.SendObjectChange(networkID, !used);
+                //used = !used;
+                //UpdateState();
+
+                //NetworkManager.instance.SendRoomStateChange(ObjectType.Lamp, RoomType.RoomB, !used);''
+
+            }
+        }
+        
+        public override void OnStateChange(object aState)
+        {
+            try
+            {
+                used = (bool)aState;
                 UpdateState();
-                
+            }
+            catch(Exception aException)
+            {
+                Debug.LogException(aException);
             }
         }
         

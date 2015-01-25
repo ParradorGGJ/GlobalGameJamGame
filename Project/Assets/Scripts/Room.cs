@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Parrador
 {
@@ -11,6 +11,9 @@ namespace Parrador
 
         [SerializeField]
         private InteractiveObject[] m_RoomObjects;
+
+        [SerializeField]
+        private List<NetworkID> m_InteractiveObjects = new List<NetworkID>();
 
         [SerializeField]
         private Transform m_TransitionLocation;

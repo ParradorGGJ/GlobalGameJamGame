@@ -136,7 +136,13 @@ namespace Parrador
             return NetworkManager.instance == null ? NetworkMode.Offline : NetworkManager.instance.networkState;
         }
         
-
+        public static void SendObjectChange(NetworkID aID, object aNewState)
+        {
+            if(NetworkManager.instance != null)
+            {
+                NetworkManager.instance.SendObjectChange(aID, aNewState);
+            }
+        }
     }
 }
 

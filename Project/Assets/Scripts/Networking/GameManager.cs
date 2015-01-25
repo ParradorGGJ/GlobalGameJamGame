@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Parrador
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IGameCallbackHandler, INetworkCallbackHandler
     {
 
         #region SINGLETON
@@ -60,25 +60,72 @@ namespace Parrador
 
         //[SerializeField]
 
+        private void Start()
+        {
+            if(NetworkManager.instance != null)
+            {
+                NetworkManager.instance.gameCallbackHandler = this;
+                NetworkManager.instance.callbackHandler = this;
+            }
+        }
+        private void OnDestroy()
+        {
+            if(NetworkManager.instance != null)
+            {
+                NetworkManager.instance.gameCallbackHandler = null;
+                NetworkManager.instance.callbackHandler = this;
+            }
+        }
 
         public void AddTime(float aBonusTime)
         {
             instance.m_TimeRemaining += aBonusTime;
         }
 
+        public void OnStateChange(NetworkID aObjectID, object aState)
+        {
+            GenericObjectBehaviour gob = aObjectID.GetComponent<GenericObjectBehaviour>();
+            if(gob != null)
+            {
+                gob.OnStateChange(aState);
+            }
+        }
+
+        public void OnGameStart()
+        {
+            //Gets called when the GameMode officially starts. (All players loaded).
+        }
+
+        public void OnGameObjectSpawned(string aObjectID, string aOwner)
+        {
+            //NetworkWorld.GetSelf();
+            //NetworkWorld.GetPlayer(aOwner);
+            //NetworkWorld.GetGameObject(aObjectID);
+        }
+
+        public void OnGameObjectDespawned(string aObjectID, string aOwner)
+        {
+
+        }
+
 
         public CorridorController corridorController
         {
-            get { return instance.m_CorridorController; }
-            set { instance.m_CorridorController = value; }
+            get { return m_CorridorController; }
+            set { m_CorridorController = value; }
         }
 
         public float timeRemaining
         {
-            get { return instance.m_TimeRemaining; }
-            set { instance.m_TimeRemaining = value; }
+            get { return m_TimeRemaining; }
+            set { m_TimeRemaining = value; }
         }
 
 
+
+
+
+
+        
     }
 }

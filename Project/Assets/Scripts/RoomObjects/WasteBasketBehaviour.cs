@@ -54,6 +54,11 @@ namespace Parrador
             }
         }
 
+        public override void OnStateChange(object aState)
+        {
+            //TODO: Handle the state change. The object will be the same as was sent through SendObjectChange
+        }
+
         void OnTriggerStay(Collider collider)
         {
             if (collider.CompareTag("Player") == false) { return; }

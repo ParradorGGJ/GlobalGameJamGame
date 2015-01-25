@@ -12,11 +12,11 @@ namespace Parrador
     public enum NetworkMode
     {
         Offline,
-        MatchMaking,
+        MatchMaking, //Currently in match making
         LobbyServer, //Enter Upon starting server.
         LobbyClient, //Enter Upon connecting with Server.
-        GameServer,
-        GameClient
+        GameServer, //Entered the game as a server
+        GameClient //Entered the game as a client
     }
 
     public interface INetworkCallbackHandler
@@ -24,6 +24,10 @@ namespace Parrador
         void OnGameStart();
         void OnGameObjectSpawned(string aObjectID, string aOwner);
         void OnGameObjectDespawned(string aObjectID, string aOwner);
+    }
+    public interface IGameCallbackHandler
+    {
+        void OnStateChange(NetworkID aID, object aState);
     }
 
 
@@ -119,6 +123,11 @@ namespace Parrador
             set { m_CurrentState = value; }
         }
         public INetworkCallbackHandler callbackHandler
+        {
+            get;
+            set;
+        }
+        public IGameCallbackHandler gameCallbackHandler
         {
             get;
             set;
@@ -355,23 +364,29 @@ namespace Parrador
 
             //string playerName = m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.player == aPlayer).name;
 
-            string playerName = m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.networkPlayer == aPlayer).name;
+            Player player = m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.networkPlayer == aPlayer);
 
-            if(!string.IsNullOrEmpty(playerName))
+            if(player != null)
             {
-                foreach (GameObject gObject in m_ServerGameObjects)
+                string playerName = player.name;
+                if (!string.IsNullOrEmpty(playerName))
                 {
-                    NetworkController netController = gObject.GetComponent<NetworkController>();
-                    if (netController != null)
+                    foreach (GameObject gObject in m_ServerGameObjects)
                     {
-                        if (netController.objectOwner == playerName)
+                        NetworkController netController = gObject.GetComponent<NetworkController>();
+                        if (netController != null)
                         {
-                            DespawnObject(netController.objectID);
+                            if (netController.objectOwner == playerName)
+                            {
+                                DespawnObject(netController.objectID);
+                            }
                         }
                     }
+                    StartCoroutine(PlayerDisconnectRoutine(playerName));
                 }
-                StartCoroutine(PlayerDisconnectRoutine(playerName));
             }
+
+            
 
             
         }
@@ -949,6 +964,83 @@ namespace Parrador
             Debug.LogError("Did not find object");
             return null;
         }
+
+
+        
+
+        public void SendObjectChange(NetworkID aNetworkID, object aState)
+        {
+            if(aNetworkID == null || aState == null)
+            {
+                Debug.LogError("Failed SendObjectChange: Bad Objects.");
+                return;
+            }
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream stream = new MemoryStream();
+            try
+            {
+                formatter.Serialize(stream,aState);
+                if(Network.isClient)
+                {
+                    networkView.RPC("ChangeObjectState", RPCMode.Server, aNetworkID.objectID, stream.ToArray());
+                }
+                else
+                {
+                    ChangeObjectState(aNetworkID.objectID, stream.ToArray());
+                }
+            }
+            catch(Exception aException)
+            {
+                Debug.LogException(aException);
+            }
+
+            stream.Close();
+        }
+
+        [RPC]
+        public void ChangeObjectState(string aObjectID, byte[] aState)
+        {
+            if(!Network.isServer)
+            {
+                return;
+            }
+
+            networkView.RPC("OnChangeObjectState",RPCMode.OthersBuffered, aObjectID,aState);
+            OnChangeObjectState(aObjectID, aState);
+        }
+
+        [RPC]
+        public void OnChangeObjectState(string aObjectID, byte[] aState)
+        {
+            if(aState == null)
+            {
+                Debug.LogError("Missing State");
+                return;
+            }
+            MemoryStream stream = new MemoryStream(aState);
+            BinaryFormatter formatter = new BinaryFormatter();
+            GameObject obj = GetSpawnedObject(aObjectID);
+            
+            if(obj != null)
+            {
+                NetworkID id = obj.GetComponent<NetworkID>();
+                try
+                {
+                    object state = formatter.Deserialize(stream);
+                    if(gameCallbackHandler != null)
+                    {
+                        gameCallbackHandler.OnStateChange(id, state);
+                    }
+                }
+                catch (Exception aException)
+                {
+                    Debug.LogException(aException);
+                }
+            }
+            
+
+        }
+
         #endregion
 
         #endregion
