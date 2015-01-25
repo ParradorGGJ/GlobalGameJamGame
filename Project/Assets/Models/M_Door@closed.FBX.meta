@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: 2547f9cd91494a84bbc859224f07b6c8
+guid: ad25296a105f4f44b92e7447f3cf0138
 ModelImporter:
   serializedVersion: 16
   fileIDToRecycleName:
     100000: Door
     100002: Door_Trim
-    100004: //RootNode
-    100006: DoorKnobs
+    100004: DoorKnobs
+    100006: //RootNode
     400000: Door
     400002: Door_Trim
-    400004: //RootNode
-    400006: DoorKnobs
+    400004: DoorKnobs
+    400006: //RootNode
     2300000: Door
     2300002: Door_Trim
     2300004: DoorKnobs
@@ -18,10 +18,9 @@ ModelImporter:
     3300002: Door_Trim
     3300004: DoorKnobs
     4300000: Door
-    4300002: Door_Trim
-    4300004: DoorKnobs
-    7400000: Closed
-    7400002: Take 001
+    4300002: DoorKnobs
+    4300004: Door_Trim
+    7400000: Take 001
     9500000: //RootNode
   materials:
     importMaterials: 0
@@ -32,47 +31,13 @@ ModelImporter:
     bakeSimulation: 0
     optimizeGameObjects: 0
     motionNodeName: 
-    animationCompression: 3
+    animationCompression: 1
     animationRotationError: .5
     animationPositionError: .5
     animationScaleError: .5
     animationWrapMode: 0
     extraExposedTransformPaths: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: Take 001
-      takeName: Take 001
-      firstFrame: 0
-      lastFrame: 5
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask:
-      - path: 
-        weight: 1
-      - path: Door
-        weight: 1
-      - path: Door/DoorKnobs
-        weight: 1
-      - path: Door_Trim
-        weight: 1
-      maskType: 0
-      maskSource: {instanceID: 0}
+    clipAnimations: []
     isReadable: 1
   meshes:
     lODScreenPercentages: []
