@@ -50,13 +50,7 @@ namespace Parrador
 
             if (Input.GetKeyUp(KeyCode.E))
             {
-
                 NetworkWorld.SendObjectChange(networkID, !used);
-                //used = !used;
-                //UpdateState();
-
-                //NetworkManager.instance.SendRoomStateChange(ObjectType.Lamp, RoomType.RoomB, !used);''
-
             }
         }
         

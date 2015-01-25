@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 namespace Parrador
@@ -10,6 +11,8 @@ namespace Parrador
     [RequireComponent(typeof(NetworkView))]
     public class NetworkID : MonoBehaviour
     {
+        [SerializeField]
+        private bool m_PreLoaded = false;
         /// <summary>
         /// The name of the player who owns this object.
         /// </summary>
@@ -35,6 +38,13 @@ namespace Parrador
             {
                 //This should never fail.
                 m_Self = manager.GetSelf().name;
+                if(m_PreLoaded)
+                {
+                    Player player = NetworkWorld.GetServerHost();
+                    m_OwnerName = player.name;
+                    m_OwnerNameIndex = NetworkWorld.GetPlayerIndex(player);
+                    //m_ObjectID = Guid.NewGuid().ToString();
+                }
             }
         }
 
@@ -85,6 +95,12 @@ namespace Parrador
                 }
             }
         }
+
+        public bool preloaded
+        {
+            get { return m_PreLoaded; }
+        }
+
         public string ownerName
         {
             get { return m_OwnerName; }

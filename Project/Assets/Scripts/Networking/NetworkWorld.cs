@@ -79,6 +79,11 @@ namespace Parrador
             return NetworkManager.instance == null ? -1 : NetworkManager.instance.GetPlayerIndex(aInfo);
         }
         
+        public static Player GetServerHost()
+        {
+            return NetworkManager.instance == null ? null : NetworkManager.instance.GetServerHost();
+        }
+
         public static Player GetSelf()
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetSelf();

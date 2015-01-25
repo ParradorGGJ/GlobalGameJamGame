@@ -38,7 +38,7 @@ namespace Parrador
         public const int MAX_PLAYERS = 3;
         public const string GAME_NAME = "Parrador_Online";
 
-        private const string LEVEL_NAME = "Proto_Level";
+        private const string LEVEL_NAME = "Level";
         private const string MENU_NAME = "MatchMaking";
 
         private static NetworkManager s_Instance = null;
@@ -80,6 +80,7 @@ namespace Parrador
         private float m_LoadTimer = 60.0f;
 
         private List<GameObject> m_ServerGameObjects = new List<GameObject>();
+        private List<GameObject> m_PreloadedGameObject = new List<GameObject>();
 
         private int m_RegisteringUsers = 0;
         #region MEMBERS
@@ -917,6 +918,10 @@ namespace Parrador
                 return m_CurrentPlayers[aIndex];
             }
             return null;
+        }
+        public Player GetServerHost()
+        {
+            return m_CurrentPlayers.Count > 0 ? m_CurrentPlayers[0] : null;
         }
         public Player GetSelf()
         {

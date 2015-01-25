@@ -1,8 +1,29 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 namespace Parrador
 {
+
+    [Serializable]
+    public struct InteractiveObjectInfo
+    {
+        [SerializeField]
+        private Transform m_Location;
+        [SerializeField]
+        private string m_PrefabName;
+
+        public Transform location
+        {
+            get { return m_Location; }
+            set { m_Location = value; }
+        }
+        public string prefabName
+        {
+            get { return m_PrefabName; }
+            set { m_PrefabName = value; }
+        }
+    }
 
     public class Room : MonoBehaviour
     {
@@ -10,10 +31,7 @@ namespace Parrador
         private RoomType m_UniqueRoomType;
 
         [SerializeField]
-        private InteractiveObject[] m_RoomObjects;
-
-        [SerializeField]
-        private List<NetworkID> m_InteractiveObjects = new List<NetworkID>();
+        private List<InteractiveObjectInfo> m_InteractiveObjects = new List<InteractiveObjectInfo>();
 
         [SerializeField]
         private Transform m_TransitionLocation;
@@ -24,36 +42,35 @@ namespace Parrador
         // Use this for initialization
         void Start()
         {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        /// <summary>
-        /// Null check results for safety
-        /// </summary>
-        /// <param name="aObjectType"></param>
-        /// <returns></returns>
-        public InteractiveObject GetObjectFromRoom(ObjectType aObjectType)
-        {
-            for (int i = 0; i < m_RoomObjects.Length; i++ )
+            NetworkMode networkState = NetworkWorld.GetNetworkState();
+            if(networkState == NetworkMode.GameClient || networkState == NetworkMode.GameServer)
             {
-                if (m_RoomObjects[i].GetObjectType() == aObjectType)
+                foreach(InteractiveObjectInfo objInfo in m_InteractiveObjects)
                 {
-                    return m_RoomObjects[i];
+                    if(networkState == NetworkMode.GameServer)
+                    {
+                        int prefabIndex = NetworkWorld.GetPrefabIndex(objInfo.prefabName);
+                        if (prefabIndex != -1)
+                        {
+                            if (objInfo.location != null)
+                            {
+                                NetworkWorld.SpawnObject(prefabIndex, objInfo.location.position, objInfo.location.rotation);
+                            }
+                            else
+                            {
+                                NetworkWorld.SpawnObject(prefabIndex, transform.position, Quaternion.identity);
+                            }
+                        }                    
+                    }
+                    Destroy(objInfo.location.gameObject);
                 }
+
+
             }
-
-            return null;
-        }
-
-        public InteractiveObject[] GetRoomObjects()
-        {
-            return m_RoomObjects;
+            else
+            {
+                Debug.LogError("Created a room while not playing the game...");
+            }
         }
 
         public RoomType uniqueID
