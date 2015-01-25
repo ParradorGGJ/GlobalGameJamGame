@@ -30,6 +30,7 @@ namespace Parrador
         void OnStateChange(NetworkID aID, object aState);
         float GetGameTime();
         void SetGameTime(float aTime);
+        void OnGameOver();
     }
 
 
@@ -1077,7 +1078,7 @@ namespace Parrador
         {
             if(Network.isServer)
             {
-                networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, aTime);
+				networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, aTime);
                 SendSynchronizeTime(aTime);
             }
         }
@@ -1098,7 +1099,7 @@ namespace Parrador
 
             //TODO: Get Game Time (gt + aTime)
             float totalTime = gameCallbackHandler.GetGameTime() + aTime;
-            networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, totalTime);
+			networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, totalTime);
             SendSynchronizeTime(totalTime);
 
         }
@@ -1110,6 +1111,22 @@ namespace Parrador
             {
                 gameCallbackHandler.SetGameTime(aTime);
             }
+        }
+        
+        
+        public void SendGameOver()
+        {
+        	if(Network.isServer)
+        	{
+        		networkView.RPC("OnGameOver",RPCMode.OthersBuffered);
+        		OnGameOver();
+        	}
+        }
+        
+        [RPC]
+        private void OnGameOver()
+        {
+        	gameCallbackHandler.OnGameOver();
         }
 
         

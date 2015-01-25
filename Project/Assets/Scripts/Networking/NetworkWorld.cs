@@ -73,6 +73,16 @@ namespace Parrador
             return NetworkManager.instance == null ? -1 : NetworkManager.instance.GetPlayerIndex(aInfo);
         }
         
+        public static bool IsHost()
+        { 
+        	return NetworkManager.instance == null ? false : GetSelf() == GetServerHost();
+        }
+        
+        public static bool IsClient()
+        {
+        	return !IsHost();
+        }
+        
         public static Player GetServerHost()
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetServerHost();
@@ -150,6 +160,14 @@ namespace Parrador
             {
                 NetworkManager.instance.SendSetTime(aTime);
             }
+        }
+        
+        public static void SendGameOver()
+        {
+        	if(NetworkManager.instance != null)
+        	{
+        		NetworkManager.instance.SendGameOver();
+        	}
         }
     }
 }

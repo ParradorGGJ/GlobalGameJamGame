@@ -14,23 +14,23 @@ namespace Parrador
 
         void Start()
         {
-        	GameManager.instance.timeRemaining = m_MaxTime;
-            GameManager.instance.timeLimit = m_MaxTime;
+        	//GameManager.instance.timeRemaining = m_MaxTime;
+            //GameManager.instance.timeLimit = m_MaxTime;
             m_TimeRemaining = GameManager.instance.timeRemaining;
         }
 
         void Update()
         {
-        	m_TimeRemaining -= Time.deltaTime; 
-            GameManager.instance.SetGameTime(m_TimeRemaining);
+        	//m_TimeRemaining -= Time.deltaTime; 
+            //GameManager.instance.SetGameTime(m_TimeRemaining);
 			m_Time.text = DisplayTime((int)m_TimeRemaining);
          	
             
-            if( GameManager.instance.GetGameTime() <= 0.0f )
-            {
-            	GameManager.instance.gameOver = true;
-            	GameManager.instance.gameOverState = false;
-            }
+            //if( GameManager.instance.GetGameTime() <= 0.0f )
+            //{
+            //	GameManager.instance.gameOver = true;
+            //	GameManager.instance.gameOverState = false;
+            //}
         }
 
         private string DisplayTime(int time)

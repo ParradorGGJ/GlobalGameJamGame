@@ -60,11 +60,14 @@ namespace Parrador
         [SerializeField]
         private bool m_GameOver = false;
         private bool m_GameOverState = false; // true = win
+        
+        private bool m_GameRunning = false;
 
-        private void Start()
+        private void Awake()
         {
             if(NetworkManager.instance != null)
             {
+            Debug.Log("Setting Callbakcs");
                 NetworkManager.instance.gameCallbackHandler = this;
                 NetworkManager.instance.callbackHandler = this;
             }
@@ -72,10 +75,18 @@ namespace Parrador
         
         void Update()
         {
-        	if( m_GameOver == true )
+        	if(m_GameRunning && NetworkWorld.IsHost())
         	{
-        		OnGameOver();
+        		m_TimeRemaining -= Time.deltaTime;
+        		NetworkWorld.SendSetTime(m_TimeRemaining);
+        		
+        		if(m_TimeRemaining <= 0.0f && !m_GameOver)
+        		{
+        			NetworkWorld.SendGameOver();
+        		}
         	}
+        
+        	
         }
         
         private void OnDestroy()
@@ -113,7 +124,10 @@ namespace Parrador
 
         public void OnGameStart()
         {
+        Debug.Log("Sajkltja");
             //Gets called when the GameMode officially starts. (All players loaded).
+            NetworkWorld.SendSetTime(m_TimeLimit);
+            m_GameRunning = true;
         }
 
         public void OnGameObjectSpawned(string aObjectID, string aOwner)
@@ -130,6 +144,9 @@ namespace Parrador
         
         public void OnGameOver()
         {
+        	Debug.Log("Game Over");
+        	m_GameRunning = false;
+        	m_GameOver = true;
         	Application.LoadLevel("End_Game_Scene");
         }
 
@@ -142,7 +159,7 @@ namespace Parrador
         public float timeRemaining
         {
             get { return m_TimeRemaining; }
-            set { m_TimeRemaining = value; }
+            //set { m_TimeRemaining = value; }
         }
 
 		public bool gameOver
