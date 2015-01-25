@@ -9,6 +9,8 @@
         Picture,
         CoffeeTable,
         Couch,
-        DigitalClock
+        DigitalClock,
+        SmallFrame,
+        Mug
     }
 }

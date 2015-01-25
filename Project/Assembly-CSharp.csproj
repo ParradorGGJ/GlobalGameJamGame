@@ -69,6 +69,7 @@
      <Compile Include="Assets\Scripts\RoomObjects\BookshelfBehaviour.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\CouchBehaviour.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\DigitalClockBehaviour.cs" />
+     <Compile Include="Assets\Scripts\RoomObjects\FrameSmall.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\GenericObjectBehaviour.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\InteractiveObject.cs" />
      <Compile Include="Assets\Scripts\RoomObjects\LampBehaviour.cs" />
