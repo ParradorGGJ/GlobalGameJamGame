@@ -4,6 +4,7 @@ using System.Collections;
 
 namespace Parrador
 {
+    [RequireComponent(typeof(NetworkID))]
     public abstract class GenericObjectBehaviour : MonoBehaviour, InteractiveObject
     {
 

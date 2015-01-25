@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 
@@ -7,31 +8,59 @@ namespace Parrador
     public class PictureBehaviour : GenericObjectBehaviour
     {
 
+        [SerializeField]
+        private Transform m_Picture = null;
+        [SerializeField]
+        private Vector3 m_RotationUsed = Vector3.zero;
+        [SerializeField]
+        private Vector3 m_RotationNotUsed = Vector3.zero;
         // Use this for initialization
-        void Start()
+        protected override void Start()
         {
-            objectType = ObjectType.Picture;
-
-            //TODO: check whatever is needed for Picture to function
-            //if (false)
-            //{
-            //    Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
-            //}
+ 	         base.Start();
+             objectType = ObjectType.Picture;
+             used = false;
+             UpdateState();
         }
 
-        // Update is called once per frame
-        void Update()
+        void OnTriggerStay(Collider aCollider)
         {
-            UpdateState();  //only here while testing, will be called through interfact externally
+            if (aCollider.CompareTag("Player") == false) { return; }
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                Debug.Log("Use");
+                NetworkWorld.SendObjectChange(networkID, !used);
+            }
         }
 
         public override void ObjectSpecificStateUpate()
         {
-            //TODO: Whatever the Picture does
+            if(m_Picture == null)
+            {
+                return;
+            }
+            if(used)
+            {
+                m_Picture.rotation = Quaternion.Euler(m_RotationUsed);
+            }
+            else
+            {
+                m_Picture.rotation = Quaternion.Euler(m_RotationNotUsed);
+            }
+
         }
         public override void OnStateChange(object aState)
         {
-            //TODO: Handle the state change. The object will be the same as was sent through SendObjectChange
+            try
+            {
+                used = (bool)aState;
+                UpdateState();
+            }
+            catch(Exception aException)
+            {
+                Debug.LogException(aException);
+            }
         }
     }
 }

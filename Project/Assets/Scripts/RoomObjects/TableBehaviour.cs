@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 
 
@@ -6,32 +7,60 @@ namespace Parrador
 {
     public class TableBehaviour : GenericObjectBehaviour
     {
+        [SerializeField]
+        private Transform m_Table = null;
+        [SerializeField]
+        private Vector3 m_NormalRotation = Vector3.zero;
+        [SerializeField]
+        private Vector3 m_FlippedRotation = Vector3.zero;
 
         // Use this for initialization
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             objectType = ObjectType.CoffeeTable;
-
-            //TODO: check whatever is needed for CoffeeTable to function
-            //if (false)
-            //{
-            //    Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
-            //}
+            used = false;
+            UpdateState();
         }
 
-        // Update is called once per frame
-        void Update()
+        void OnTriggerStay(Collider aCollider)
         {
-            UpdateState();  //only here while testing, will be called through interfact externally
+            if (aCollider.CompareTag("Player") == false) { return; }
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                Debug.Log("Use");
+                NetworkWorld.SendObjectChange(networkID, !used);
+            }
         }
 
         public override void ObjectSpecificStateUpate()
         {
-            //TODO: Whatever the CoffeeTable does
+            if(m_Table == null)
+            {
+                return;
+            }
+
+            if(used)
+            {
+                m_Table.rotation = Quaternion.Euler(m_NormalRotation);
+            }
+            else
+            {
+                m_Table.rotation = Quaternion.Euler(m_FlippedRotation);
+            }
         }
         public override void OnStateChange(object aState)
         {
-            //TODO: Handle the state change. The object will be the same as was sent through SendObjectChange
+            try
+            {
+                used = (bool)aState;
+                UpdateState();
+            }
+            catch (Exception aException)
+            {
+                Debug.LogException(aException);
+            }
         }
     }
 }
