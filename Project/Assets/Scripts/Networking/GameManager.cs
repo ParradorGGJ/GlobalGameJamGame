@@ -29,7 +29,6 @@ namespace Parrador
             {
                 s_Instance = world.AddComponent<GameManager>();
             }
-
         }
 
         private static bool SetInstance(GameManager aInstance)
@@ -55,10 +54,12 @@ namespace Parrador
         private CorridorController m_CorridorController;
 
         [SerializeField]
-        private float m_TimeLimit = 60.0f;
+        private float m_TimeLimit = 420.0f;
         private float m_TimeRemaining;
 
-        //[SerializeField]
+        [SerializeField]
+        private bool m_GameOver = false;
+        private bool m_GameOverState; // true = win
 
         private void Start()
         {
@@ -68,6 +69,15 @@ namespace Parrador
                 NetworkManager.instance.callbackHandler = this;
             }
         }
+        
+        private void Update()
+        {
+        	if( m_GameOver == true )
+        	{
+        		OnGameOver();
+        	}
+        }
+        
         private void OnDestroy()
         {
             if(NetworkManager.instance != null)
@@ -117,7 +127,11 @@ namespace Parrador
         {
 
         }
-
+        
+        public void OnGameOver()
+        {
+        	
+        }
 
         public CorridorController corridorController
         {
@@ -131,11 +145,16 @@ namespace Parrador
             set { m_TimeRemaining = value; }
         }
 
-
-
-
-
-
-        
+		public bool gameOver
+		{
+			get { return m_GameOver;  }
+			set { m_GameOver = value; }
+		}  
+		
+		public bool gameOverState
+		{
+			get { return m_GameOverState;	}
+			set { m_GameOverState = value;	}
+		}
     }
 }
