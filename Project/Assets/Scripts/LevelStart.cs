@@ -91,6 +91,7 @@ namespace Parrador
         {
 
         }
+
         public void OnGameObjectSpawned(string aID, string aOwner)
         {
             Player self = NetworkWorld.GetSelf();
