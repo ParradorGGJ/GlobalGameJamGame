@@ -12,90 +12,42 @@ namespace Parrador
 
         private NetworkInputClient m_ClientInput = null;
         private NetworkInputServer m_ServerInput = null;
+        private NetworkID m_NetworkID = null;
 
         private float m_ClientPing = 0.0f;
         private NetworkState[] m_NetworkStates = new NetworkState[20];
 
-        // -- Network Info
-        [SerializeField]
-        private string m_PlayerName = string.Empty;
-        [SerializeField]
-        private int m_PlayerIndex = 0;
-        [SerializeField]
-        private string m_ObjectID = string.Empty;
-        private string m_Self = string.Empty;
 
         private void Start()
         {
             m_ClientInput = GetComponent<NetworkInputClient>();
             m_ServerInput = GetComponent<NetworkInputServer>();
-            NetworkManager manager = NetworkManager.instance;
-            if(manager != null)
-            {
-                m_Self = manager.GetSelf().name;
-            }
+            m_NetworkID = GetComponent<NetworkID>();
         }
 
-        private void OnDestroy()
-        {
-            NetworkManager manager = NetworkManager.instance;
-            if(manager != null)
-            {
-                manager.UnregisterSpawnedObject(gameObject);
-            }
-        }
 
-        public void SendUpdateClientMotion(float aHorizontal, float aVertical)
+        public void SendUpdateClientMotion(float aHorizontal, float aVertical, float aMouseMotion)
         {
             if(Network.isClient)
             {
-                networkView.RPC("OnReceiveUpdateClientMotion", RPCMode.Server, aHorizontal, aVertical);
+                networkView.RPC("OnReceiveUpdateClientMotion", RPCMode.Server, aHorizontal, aVertical,aMouseMotion);
             }
             else if(Network.isServer)
             {
-                OnReceiveUpdateClientMotion(aHorizontal, aVertical);
+                OnReceiveUpdateClientMotion(aHorizontal, aVertical,aMouseMotion);
             }
             
         }
 
         [RPC]
-        private void OnReceiveUpdateClientMotion(float aHorizontal, float aVertical)
+        private void OnReceiveUpdateClientMotion(float aHorizontal, float aVertical, float aMouseMotion)
         {
             if(!Network.isServer)
             {
                 Debug.LogError("OnReceiveUpdateClientMotion was called on a machine that is not the server.");
                 return;
             }
-            m_ServerInput.UpdateClientMotion(aHorizontal, aVertical);
-        }
-        public void ReceiveServerInfo(NetworkViewID aViewID, string aPlayerName, int aPlayerIndex, string aObjectID)
-        {
-            if(Network.isServer && aViewID == networkView.viewID)
-            {
-                m_PlayerName = aPlayerName;
-                m_PlayerIndex = aPlayerIndex;
-                m_ObjectID = aObjectID;
-            }
-        }
-
-        [RPC]
-        private void OnReceiveServerInfo(NetworkViewID aViewID, string aPlayerName, int aPlayerIndex, string aObjectID)
-        {
-            if (aViewID == networkView.viewID)
-            {
-                m_PlayerName = aPlayerName;
-                m_PlayerIndex = aPlayerIndex;
-                m_ObjectID = aObjectID;
-            }
-
-            if(Network.isClient)
-            {
-                NetworkManager manager = NetworkManager.instance;
-                if(manager != null)
-                {
-                    manager.RegisterSpawnedObject(gameObject);
-                }
-            }
+            m_ServerInput.UpdateClientMotion(aHorizontal, aVertical,aMouseMotion);
         }
 
         private void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo aInfo)
@@ -130,8 +82,10 @@ namespace Parrador
 
         private void Update()
         {
+            Player self = NetworkWorld.GetSelf();
+            
             //This moves the player for all peers - the server
-            if(Network.player == m_ClientInput.owner || Network.isServer)
+            if(m_NetworkID.ownerName == self.name || Network.isServer)
             {
                 return;
             }
@@ -178,27 +132,6 @@ namespace Parrador
                 transform.position = Vector3.Lerp(transform.position, state.position, 0.5f);
                 transform.rotation = Quaternion.Slerp(transform.rotation, state.rotation, 0.5f);
             }
-        }
-
-        public string objectOwner
-        {
-            get { return m_PlayerName; }
-        }
-        public int objectOwnerIndex
-        {
-            get { return m_PlayerIndex; }
-        }
-        public string objectID
-        {
-            get { return m_ObjectID; }
-        }
-        public string self
-        {
-            get { return m_Self; }
-        }
-        public bool isOwner
-        {
-            get { return m_Self == m_PlayerName; }
         }
     }
 }

@@ -17,12 +17,12 @@ namespace Parrador
         private float m_TurnSpeed = 45.0f;
 
         private CharacterController m_Controller = null;
+        private NetworkID m_NetworkID = null;
         private NetworkController m_NetworkController = null;
 
-        private NetworkPlayer m_Owner = default(NetworkPlayer);
         private float m_LastHorizontalMotion = 0.0f;
         private float m_LastVerticalMotion = 0.0f;
-
+        private float m_LastMouseMotion = 0.0f;
 
         private Vector3 m_ServerPosition = Vector3.zero;
         private Quaternion m_ServerRotation = Quaternion.identity;
@@ -42,6 +42,7 @@ namespace Parrador
         {
             m_Controller = GetComponent<CharacterController>();
             m_NetworkController = GetComponent<NetworkController>();
+            m_NetworkID = GetComponent<NetworkID>();
         }
 
 
@@ -49,45 +50,36 @@ namespace Parrador
 
         private void Update()
         {
-
-            if(m_NetworkController.isOwner)
+            if(m_NetworkID.isOwnerSelf)
             {
+                //Move
                 float motionH = Input.GetAxis("Horizontal");
                 float motionV = Input.GetAxis("Vertical");
                 float mouseX = Input.GetAxis("Mouse X");
 
-                if (motionH != m_LastHorizontalMotion || motionV != m_LastVerticalMotion || mouseX != 0.0f)
+                if(motionH != m_LastHorizontalMotion || motionV != m_LastVerticalMotion || mouseX != m_LastMouseMotion)
                 {
-                    if (m_NetworkController != null)
-                    {
-                        m_NetworkController.SendUpdateClientMotion(motionH, motionV);
-                    }
                     m_LastHorizontalMotion = motionH;
                     m_LastVerticalMotion = motionV;
+                    m_LastMouseMotion = mouseX;
 
-                    if (m_Controller != null)
-                    {
-                        transform.Rotate(0.0f,mouseX * m_TurnSpeed * Time.deltaTime,0.0f);
-
-                        if(m_Controller.isGrounded)
-                        {
-                            Vector3 moveDirection = new Vector3(m_LastHorizontalMotion, 0.0f, m_LastVerticalMotion);
-                            moveDirection = transform.TransformDirection(moveDirection);
-                            moveDirection *= m_Speed;
-
-                            if(Input.GetButtonDown("Jump"))
-                            {
-                                moveDirection.y = m_JumpForce;
-                            }
-                            m_Velocity = moveDirection;
-                        }
-
-                        m_Velocity.y -= m_Gravity * Time.deltaTime;
-                        m_Controller.Move(m_Velocity * Time.deltaTime);
-                    }
+                    m_NetworkController.SendUpdateClientMotion(motionH, motionV,mouseX);
                 }
-            }
 
+                Vector3 moveDirection = new Vector3(m_LastHorizontalMotion, 0.0f, m_LastVerticalMotion);
+                moveDirection = transform.TransformDirection(moveDirection);
+                moveDirection *= m_Speed;
+                moveDirection.y = m_Velocity.y;
+                if(!m_Controller.isGrounded)
+                {
+                    moveDirection.y = 0.0f;
+                }
+
+                moveDirection.y -= m_Gravity * Time.deltaTime;
+                m_Velocity = moveDirection;
+                m_Controller.Move(m_Velocity * Time.deltaTime);
+
+            }
         }
 
         public void LerpToTarget(Vector3 aServerPosition, Quaternion aServerRotation)
@@ -106,11 +98,6 @@ namespace Parrador
             }
         }
 
-        public NetworkPlayer owner
-        {
-            get { return m_Owner; }
-            set { m_Owner = value; }
-        }
 
     }
 

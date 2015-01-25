@@ -376,12 +376,13 @@ namespace Parrador
                 {
                     foreach (GameObject gObject in m_ServerGameObjects)
                     {
-                        NetworkController netController = gObject.GetComponent<NetworkController>();
-                        if (netController != null)
+                        NetworkID networkdID = gObject.GetComponent<NetworkID>();
+
+                        if (networkdID != null)
                         {
-                            if (netController.objectOwner == playerName)
+                            if (networkdID.ownerName == playerName)
                             {
-                                DespawnObject(netController.objectID);
+                                DespawnObject(networkdID.objectID);
                             }
                         }
                     }
@@ -1072,6 +1073,15 @@ namespace Parrador
                 OnAddTime(aPlayer.name, aTime);
             }
         }
+        public void SendSetTime(float aTime)
+        {
+            if(Network.isServer)
+            {
+                networkView.RPC("SendSynchronizeTime", RPCMode.OthersBuffered, aTime);
+                SendSynchronizeTime(aTime);
+            }
+        }
+
         [RPC]
         public void OnAddTime(string aPlayer, float aTime)
         {
@@ -1102,7 +1112,7 @@ namespace Parrador
             }
         }
 
-
+        
         
 
         #endregion

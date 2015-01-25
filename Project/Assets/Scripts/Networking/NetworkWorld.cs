@@ -144,6 +144,13 @@ namespace Parrador
             }
         }
 
+        public static void SendSetTime(float aTime)
+        {
+            if(NetworkManager.instance != null)
+            {
+                NetworkManager.instance.SendSetTime(aTime);
+            }
+        }
     }
 }
 

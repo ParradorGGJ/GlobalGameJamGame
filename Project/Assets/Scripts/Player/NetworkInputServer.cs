@@ -9,9 +9,11 @@ namespace Parrador
         private float m_Speed = 5.0f;
         private CharacterController m_CharacterController = null;
         private NetworkController m_NetworkController = null;
+        private NetworkID m_NetworkID = null;
 
         private float m_HorizontalMotion = 0.0f;
         private float m_VerticalMotion = 0.0f;
+        private float m_MouseMotion = 0.0f;
 
         // Use this for initialization
         void Start()
@@ -28,18 +30,19 @@ namespace Parrador
         // Update is called once per frame
         void Update()
         {
-            if(!m_NetworkController.isOwner && Network.isServer)
-            {
-                m_CharacterController.Move(new Vector3(m_HorizontalMotion * m_Speed * Time.deltaTime, 0.0f, m_VerticalMotion * m_Speed * Time.deltaTime));
-            }
+            //if(!m_NetworkController.isOwner && Network.isServer)
+            //{
+            //    m_CharacterController.Move(new Vector3(m_HorizontalMotion * m_Speed * Time.deltaTime, 0.0f, m_VerticalMotion * m_Speed * Time.deltaTime));
+            //}
         }
 
 
 
-        public void UpdateClientMotion(float aHorizontal, float aVertical)
+        public void UpdateClientMotion(float aHorizontal, float aVertical, float aMouseMotion)
         {
             m_HorizontalMotion = aHorizontal;
             m_VerticalMotion = aVertical;
+            m_MouseMotion = aMouseMotion;
         }
     }
 }
