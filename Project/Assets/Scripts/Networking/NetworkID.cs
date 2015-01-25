@@ -7,6 +7,7 @@ namespace Parrador
     /// <summary>
     /// Acts as a form of object ownership.
     /// </summary>
+    [RequireComponent(typeof(NetworkView))]
     public class NetworkID : MonoBehaviour
     {
         /// <summary>

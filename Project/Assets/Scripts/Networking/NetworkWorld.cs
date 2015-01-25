@@ -131,6 +131,10 @@ namespace Parrador
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetSpawnedObject(aObjectID);
         }
 
+        public static NetworkMode GetNetworkState()
+        {
+            return NetworkManager.instance == null ? NetworkMode.Offline : NetworkManager.instance.networkState;
+        }
         
 
     }

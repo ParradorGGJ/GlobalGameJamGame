@@ -18,7 +18,10 @@ namespace Parrador
         private Vector3[] m_SpawnPositions = null;
 
 
-        public GameObject m_Player = null;
+        //public GameObject m_Player = null;
+        public string m_PrefabName = string.Empty;
+
+        private Stack<string> m_SpawnedObjects = new Stack<string>();
         
         void Awake()
         {
@@ -70,13 +73,14 @@ namespace Parrador
 
            if(Input.GetKeyDown(KeyCode.P))
            {
-               if(m_Player == null)
+               NetworkWorld.SpawnObject(NetworkWorld.GetPrefabIndex(m_PrefabName), spawnPosition, Quaternion.identity);
+           }
+           else if(Input.GetKeyDown(KeyCode.O))
+           {
+               if(m_SpawnedObjects.Count > 0)
                {
-                   manager.SpawnObject(0, spawnPosition, Quaternion.identity);
-               }
-               else
-               {
-                   manager.DespawnObject(m_Player);
+                   string objectID = m_SpawnedObjects.Pop();
+                   NetworkWorld.DespawnObject(objectID);
                }
            }
 
@@ -89,39 +93,53 @@ namespace Parrador
         }
         public void OnGameObjectSpawned(string aID, string aOwner)
         {
-            NetworkManager manager = NetworkManager.instance;
-            if(manager != null && m_Player == null)
+            Player self = NetworkWorld.GetSelf();
+            Player owner = NetworkWorld.GetPlayer(aOwner);
+
+            if(self != null && owner != null)
             {
-                string self = manager.GetSelf().name;
-                if(self == aOwner)
+                if(self.name == owner.name)
                 {
-                    m_Player = manager.GetSpawnedObject(aID);
-                    if(m_Player != null)
-                    {
-                        Camera.main.transform.position = m_Player.transform.position;
-                        Camera.main.transform.parent = m_Player.transform;
-                    }
+                    m_SpawnedObjects.Push(aID);
                 }
             }
+
+
+
+            //NetworkManager manager = NetworkManager.instance;
+            //if(manager != null && m_Player == null)
+            //{
+            //    string self = manager.GetSelf().name;
+            //    if(self == aOwner)
+            //    {
+            //        m_Player = manager.GetSpawnedObject(aID);
+            //        if(m_Player != null)
+            //        {
+            //            Camera.main.transform.position = m_Player.transform.position;
+            //            Camera.main.transform.parent = m_Player.transform;
+            //        }
+            //    }
+            //}
 
         }
 
         public void OnGameObjectDespawned(string aID, string aOwner)
         {
-            NetworkManager manager = NetworkManager.instance;
-            if (manager != null && m_Player != null)
-            {
-                string self = manager.GetSelf().name;
-                if (self == aOwner)
-                {
-                    GameObject spawnedObject = manager.GetSpawnedObject(aID);
-                    if(spawnedObject == m_Player)
-                    {
-                        m_Player = null;
-                        Camera.main.transform.parent = null;
-                    }
-                }
-            }
+
+            //NetworkManager manager = NetworkManager.instance;
+            //if (manager != null && m_Player != null)
+            //{
+            //    string self = manager.GetSelf().name;
+            //    if (self == aOwner)
+            //    {
+            //        GameObject spawnedObject = manager.GetSpawnedObject(aID);
+            //        if(spawnedObject == m_Player)
+            //        {
+            //            m_Player = null;
+            //            Camera.main.transform.parent = null;
+            //        }
+            //    }
+            //}
         }
     }
 
