@@ -14,12 +14,18 @@ namespace Parrador
         [SerializeField]
         private Light m_TopLight = null;
 
+        [SerializeField]
+        private AudioSource m_AudioSource = null;
+
+        //[SerializeField]
+        //private AudioClip m_AudioClip = null;
+
         // Use this for initialization
         protected override void Start()
         {
             base.Start();
             objectType = ObjectType.Lamp;
-            if (m_BottomLight == null || m_TopLight == null)
+            if (m_BottomLight == null || m_TopLight == null || m_AudioSource == null)
             {
                 Debug.Log(objectType + " ObjectType not set up properly. ID: " + GetInstanceID());
             }
@@ -35,6 +41,7 @@ namespace Parrador
         {
             m_BottomLight.enabled = used;
             m_TopLight.enabled = used;
+            m_AudioSource.Play();
         }
 
         void OnTriggerStay(Collider collider)
