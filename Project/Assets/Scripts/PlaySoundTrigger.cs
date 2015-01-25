@@ -24,7 +24,7 @@ public class PlaySoundTrigger : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.E))
         {
-            if (m_AudioSource == null || m_OnUseClip == null) { return; }
+            if (m_PlayOnUse == false || m_AudioSource == null || m_OnUseClip == null) { return; }
 
             m_AudioSource.PlayOneShot(m_OnUseClip);
         }
@@ -34,7 +34,7 @@ public class PlaySoundTrigger : MonoBehaviour
     {
         if (aCollider.CompareTag("Player") == false) { return; }
 
-        if (m_AudioSource == null || m_OnUseClip == null) { return; }
+        if (m_PlayOnEnter == false || m_AudioSource == null || m_OnUseClip == null) { return; }
 
         m_AudioSource.PlayOneShot(m_OnEnterClip);
     }
