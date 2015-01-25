@@ -25,6 +25,9 @@ namespace Parrador
         // -- Register
         // -- Unregister
         // -- GetSpawnedObject
+        // -- GetNetworkState
+        // -- SendObjectChange
+        // -- SendAddTime
 
 
         public static void CloseNetwork()
@@ -33,11 +36,7 @@ namespace Parrador
             {
                 NetworkManager.instance.CloseNetwork();
             }
-
-            
-
         }
-        
         public static void StartGame()
         {
             if(NetworkManager.instance != null)
@@ -45,8 +44,6 @@ namespace Parrador
                 NetworkManager.instance.StartGame();
             }
         }
-
-        
         public static GameObject GetPrefab(string aName)
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetPrefabByName(aName);
@@ -59,8 +56,6 @@ namespace Parrador
         {
             return NetworkManager.instance == null ? 0 : NetworkManager.instance.GetPrefabIndex(aName);
         }
-
-        
         public static Player GetPlayer(string aName)
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetPlayer(aName);
@@ -69,7 +64,6 @@ namespace Parrador
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetPlayer(aIndex);
         }
-        
         public static int GetPlayerIndex(string aName)
         {
             return NetworkManager.instance == null ? -1 : NetworkManager.instance.GetPlayerIndex(aName);
@@ -88,9 +82,6 @@ namespace Parrador
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetSelf();
         }
-
-        
-
         public static void SpawnObject(int aIndex)
         {
             SpawnObject(aIndex, Vector3.zero, Quaternion.identity);
@@ -116,7 +107,6 @@ namespace Parrador
                 NetworkManager.instance.DespawnObject(aObject);
             }
         }
-
         public static void RegisterGameObject(GameObject aObject)
         {
             if(NetworkManager.instance != null)
@@ -135,12 +125,10 @@ namespace Parrador
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetSpawnedObject(aObjectID);
         }
-
         public static NetworkMode GetNetworkState()
         {
             return NetworkManager.instance == null ? NetworkMode.Offline : NetworkManager.instance.networkState;
         }
-        
         public static void SendObjectChange(NetworkID aID, object aNewState)
         {
             if(NetworkManager.instance != null)
