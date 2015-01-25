@@ -50,10 +50,14 @@
      <Compile Include="Assets\Scripts\LevelStart.cs" />
      <Compile Include="Assets\Scripts\Networking\GameManager.cs" />
      <Compile Include="Assets\Scripts\Networking\LobbyBrowser.cs" />
+     <Compile Include="Assets\Scripts\Networking\NetworkID.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkPlayerInfo.cs" />
+     <Compile Include="Assets\Scripts\Networking\NetworkRPC.cs" />
+     <Compile Include="Assets\Scripts\Networking\NetworkWorld.cs" />
      <Compile Include="Assets\Scripts\Networking\ObjectType.cs" />
      <Compile Include="Assets\Scripts\Networking\PeerPanel.cs" />
+     <Compile Include="Assets\Scripts\Networking\Player.cs" />
      <Compile Include="Assets\Scripts\Networking\RoomType.cs" />
      <Compile Include="Assets\Scripts\Player\NetworkController.cs" />
      <Compile Include="Assets\Scripts\Player\NetworkInputClient.cs" />

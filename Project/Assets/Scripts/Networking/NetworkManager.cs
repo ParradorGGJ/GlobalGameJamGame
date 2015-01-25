@@ -13,8 +13,8 @@ namespace Parrador
     {
         Offline,
         MatchMaking,
-        LobbyServer,
-        LobbyClient,
+        LobbyServer, //Enter Upon starting server.
+        LobbyClient, //Enter Upon connecting with Server.
         GameServer,
         GameClient
     }
@@ -25,6 +25,7 @@ namespace Parrador
         void OnGameObjectSpawned(string aObjectID, string aOwner);
         void OnGameObjectDespawned(string aObjectID, string aOwner);
     }
+
 
     [RequireComponent(typeof(NetworkView))]
     public class NetworkManager : MonoBehaviour
@@ -44,6 +45,8 @@ namespace Parrador
 
         void Awake()
         {
+            Application.runInBackground = true;
+
             if(s_Instance == null)
             {
                 s_Instance = this;
@@ -65,10 +68,12 @@ namespace Parrador
         }
 
         private NetworkMode m_CurrentState = NetworkMode.MatchMaking;
-        private List<NetworkPlayerInfo> m_CurrentPlayers = new List<NetworkPlayerInfo>();
-        //private List<NetworkPlayer> m_ConnectedPlayers = new List<NetworkPlayer>();
-        private List<NetworkPlayerInfo> m_RegisteringPlayers = new List<NetworkPlayerInfo>();
-        private List<NetworkPlayerInfo> m_LoadedPlayers = new List<NetworkPlayerInfo>();
+
+        private List<Player> m_CurrentPlayers = new List<Player>();
+        private List<Player> m_RegisteredPlayers = new List<Player>();
+        private List<Player> m_LoadedPlayers = new List<Player>();
+        private bool m_LoadedTimerFinish = false;
+        private float m_LoadTimer = 60.0f;
 
         private List<GameObject> m_ServerGameObjects = new List<GameObject>();
 
@@ -88,7 +93,7 @@ namespace Parrador
         public string hostName
         {
             get { return m_HostName; }
-            set { m_HostName = value; }
+            set { if (m_CurrentState == NetworkMode.MatchMaking) { m_HostName = value; } }
         }
         public string lobbyName
         {
@@ -118,92 +123,17 @@ namespace Parrador
             get;
             set;
         }
-        public void CloseServer()
-        {
-            Network.Disconnect();
-            ResetState();
-        }
-        public GameObject GetPrefabByName(string aName)
-        {
-            return m_Prefabs.FirstOrDefault<GameObject>(Element => Element.name == aName);
-        }
-        public GameObject GetPrefabByIndex(int aIndex)
-        {
-            if(aIndex >= 0 && aIndex <= m_Prefabs.Count)
-            {
-                return m_Prefabs[aIndex];
-            }
-            return null;
-        }
-        public GameObject GetPrefabByID(int aID)
-        {
-            return m_Prefabs.FirstOrDefault<GameObject>(Element => Element.GetInstanceID() == aID);
-        }
-        public NetworkPlayerInfo GetPlayer(string aName)
-        {
-            return m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == aName);
-        }
-        public NetworkPlayerInfo GetSelf()
-        {
-            return m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == m_HostName);
-        }
-        public int GetPlayerIndex(NetworkPlayerInfo aInfo)
-        {
-            if(string.IsNullOrEmpty(aInfo.name))
-            {
-                return -1;
-            }
-            for(int i = 0; i < m_CurrentPlayers.Count; i++)
-            {
-                if(m_CurrentPlayers[i].name == aInfo.name)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        public void RegisterSpawnedObject(GameObject aObject)
-        {
-            m_ServerGameObjects.Add(aObject);
-            NetworkController controller = aObject.GetComponent<NetworkController>();
-            if(controller != null && callbackHandler != null)
-            {
-                callbackHandler.OnGameObjectSpawned(controller.objectID, controller.objectOwner);
-            }
-            
-        }
-        public void UnregisterSpawnedObject(GameObject aObject)
-        {
-            bool exists = m_ServerGameObjects.Any<GameObject>(Element => Element == aObject);
-            NetworkController controller = aObject.GetComponent<NetworkController>();
-            if(callbackHandler != null && controller != null && exists)
-            {
-                callbackHandler.OnGameObjectDespawned(controller.objectID, controller.objectOwner);
-            }
-            m_ServerGameObjects.Remove(aObject);
-        }
-
-        public GameObject GetSpawnedObject(string aObjectId)
-        {
-            foreach (GameObject gObject in m_ServerGameObjects)
-            {
-                NetworkController controller = gObject.GetComponent<NetworkController>();
-                if (controller.objectID == aObjectId)
-                {
-                    return gObject;
-                }
-            }
-            Debug.LogError("Did not find object");
-            return null;
-        }
-        #endregion
+        
 
         private void ResetState()
         {
             m_CurrentState = NetworkMode.MatchMaking;
-            m_CurrentPlayers.Clear();
-            m_RegisteringPlayers.Clear();
             m_RegisteringUsers = 0;
+
+            m_CurrentPlayers.Clear();
+            m_RegisteredPlayers.Clear();
+            m_LoadedPlayers.Clear();
+
         }
 
         #region SENDERS
@@ -368,10 +298,9 @@ namespace Parrador
 
         private void OnConnectedToServer()
         {
-            //TODO: Tell Server To Register Me. (Send Name)
             m_CurrentState = NetworkMode.LobbyClient;
-            networkView.RPC("OnRegisterPlayer",RPCMode.Server,m_HostName);
-            Debug.Log("Disconnected");
+            SendRegisterUser();
+            Debug.Log("Connected");
         }
 
         private void OnDisconnectedFromServer(NetworkDisconnection aInfo)
@@ -424,7 +353,9 @@ namespace Parrador
         {
             Debug.Log("Player Disconnected");
 
-            string playerName = m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.player == aPlayer).name;
+            //string playerName = m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.player == aPlayer).name;
+
+            string playerName = m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.networkPlayer == aPlayer).name;
 
             if(!string.IsNullOrEmpty(playerName))
             {
@@ -448,28 +379,27 @@ namespace Parrador
         IEnumerator PlayerDisconnectRoutine(string aPlayerName)
         {
             yield return new WaitForSeconds(1.0f);
-            m_RegisteringPlayers.RemoveAll(Element => Element.name == aPlayerName);
+
+            m_RegisteredPlayers.RemoveAll(Element => Element.name == aPlayerName);
             m_CurrentPlayers.RemoveAll(Element => Element.name == aPlayerName);
             m_LoadedPlayers.RemoveAll(Element => Element.name == aPlayerName);
 
-
-            List<NetworkPlayerStreamInfo> streamInfo = new List<NetworkPlayerStreamInfo>();
-            foreach (NetworkPlayerInfo netPlayer in m_CurrentPlayers)
-            {
-                streamInfo.Add(netPlayer.streamInfo);
-            }
-            SendUpdateList(streamInfo);
-
+            SendUpdateList(m_CurrentPlayers);
         }
 
         private void OnServerInitialized()
         {
             Debug.Log("Initializing Server");
-            NetworkPlayerInfo playerInfo = new NetworkPlayerInfo();
-            playerInfo.name = m_HostName;
-            playerInfo.player = Network.player;
-            m_CurrentPlayers.Add(playerInfo);
+
+            Player player = Player.ToPlayer(m_HostName, Network.player);
+            m_CurrentPlayers.Add(player);
             m_CurrentState = NetworkMode.LobbyServer;
+
+            //NetworkPlayerInfo playerInfo = new NetworkPlayerInfo();
+            //playerInfo.name = m_HostName;
+            //playerInfo.player = Network.player;
+            //m_CurrentPlayers.Add(playerInfo);
+            //m_CurrentState = NetworkMode.LobbyServer;
         }
 
         private void OnLevelWasLoaded(int aLevelIndex)
@@ -480,7 +410,7 @@ namespace Parrador
                 if(Network.isClient)
                 {
                     Debug.Log("Loaded Level");
-                    networkView.RPC("OnRegisterGameLoaded", RPCMode.Server, m_HostName);
+                    networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_REGISTER_GAME_LOADED, RPCMode.Server, m_HostName);
                 }
                 else if(Network.isServer)
                 {
@@ -501,7 +431,7 @@ namespace Parrador
 
             if(Network.isClient)
             {
-                networkView.RPC("OnRegisterPlayer", RPCMode.Server, m_HostName);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_REGISTER_PLAYER, RPCMode.Server, m_HostName);
             }
         }
 
@@ -523,10 +453,38 @@ namespace Parrador
             }
         }
 
-        [RPC]
-        private void OnPlayerJoined(NetworkPlayer aPlayer, string aPlayerName)
+        private void SendUpdateList(List<Player> aInfo)
         {
-            //Gets sent to clients to notify them of the player joining.
+            MemoryStream stream = new MemoryStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            
+            formatter.Serialize(stream, aInfo);
+            byte[] bytes = stream.ToArray();
+            stream.Close();
+
+            if (bytes == null || bytes.Length == 0)
+            {
+                Debug.LogError("Failed to serialize current player");
+            }
+            else
+            {
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_UPDATE_CONNECTED_USERS,RPCMode.Others,bytes);
+            }
+        }
+
+        [RPC]
+        private void OnPlayerJoined(byte[] aPlayerBytes)
+        {
+            try
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                MemoryStream stream = new MemoryStream(aPlayerBytes);
+                Player joiningPlayer = formatter.Deserialize(stream) as Player;
+            }
+            catch(Exception aException)
+            {
+                Debug.LogException(aException);
+            }
         }
         [RPC]
         private void OnPlayerDisconnected(NetworkPlayer aPlayer, string PlayerName)
@@ -549,33 +507,33 @@ namespace Parrador
             //Ignore players while the network is locked, if the network is locked its because the game has started.
             if(networkState != NetworkMode.LobbyServer)
             {
-                networkView.RPC("OnReceiveRegisterResult", aInfo.sender, false);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_RECEIVE_REGISTER_RESULT, aInfo.sender, false);
                 return;
             }
             ///Fail condition 1
             if(m_RegisteringUsers + 1 >= MAX_PLAYERS)
             {
                 Debug.LogWarning("Player (" + aPlayerName + ") was attempting to register but there are currently " + m_RegisteringUsers + " registering right now");
-                networkView.RPC("OnReceiveRegisterResult", aInfo.sender, false);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_RECEIVE_REGISTER_RESULT, aInfo.sender, false);
                 return;
             }
             ///Fail condition 2
-            if(m_CurrentPlayers.Any<NetworkPlayerInfo>(Element => Element.name == aPlayerName) || m_RegisteringPlayers.Any<NetworkPlayerInfo>(Element => Element.name == aPlayerName))
+            if(m_CurrentPlayers.Any<Player>(Element => Element.name == aPlayerName) || m_RegisteredPlayers.Any<Player>(Element => Element.name == aPlayerName))
             {
                 Debug.LogWarning("Player (" + aPlayerName + ") was attempting to register but someone with that name already exists.");
-                networkView.RPC("OnReceiveRegisterResult", aInfo.sender, false);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_RECEIVE_REGISTER_RESULT, aInfo.sender, false);
                 return;
             }
             
             {
-                NetworkPlayerInfo playerInfo = new NetworkPlayerInfo();
-                playerInfo.name = aPlayerName;
-                playerInfo.player = aInfo.sender;
-                m_RegisteringPlayers.Add(playerInfo);
+                Player player = Player.ToPlayer(aPlayerName, aInfo.sender);
+                m_RegisteredPlayers.Add(player);
                 m_RegisteringUsers++;
-                networkView.RPC("OnReceiveRegisterResult", aInfo.sender, true);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_RECEIVE_REGISTER_RESULT, aInfo.sender, true);
             }
         }
+
+
         [RPC]
         private void OnReceiveRegisterResult(bool aResult)
         {
@@ -588,13 +546,12 @@ namespace Parrador
             if(aResult == true)
             {
                 Debug.Log("Registered with server.");
-                networkView.RPC("OnRegisterComplete", RPCMode.Server, m_HostName);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_REGISTER_COMPLETE, RPCMode.Server, m_HostName);
             }
             else
             {
                 Debug.Log("Failed to register with server");
-                Network.Disconnect();
-                m_CurrentState = NetworkMode.MatchMaking;
+                CloseNetwork();
             }
         }
 
@@ -607,27 +564,32 @@ namespace Parrador
                 Debug.LogError("OnRegisterComplete was called on a machine that is not the server.");
                 return;
             }
-            NetworkPlayerInfo player = m_RegisteringPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.player == aInfo.sender);
+            Player player = m_RegisteredPlayers.FirstOrDefault<Player>(Element => Element.networkPlayer == aInfo.sender);
+
+
             if(!string.IsNullOrEmpty(player.name))
             {
-                m_RegisteringPlayers.Remove(player);
+                m_RegisteredPlayers.Remove(player);
                 m_RegisteringUsers--;
-                foreach(NetworkPlayerInfo playerInfo in m_CurrentPlayers)
+
+                MemoryStream stream = new MemoryStream();
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, player);
+                stream.Close();
+                byte[] playerBytes = stream.ToArray();
+
+                ///Notify player join
+                foreach(Player playerInfo in m_CurrentPlayers)
                 {
-                    networkView.RPC("OnPlayerJoined", playerInfo.player, player.player, player.name);
+                    if(playerInfo.networkPlayer == Network.player)
+                    {
+                        continue;
+                    }
+                    networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_PLAYER_JOINED, playerInfo.networkPlayer, playerBytes);
                 }
                 m_CurrentPlayers.Add(player);
-                
 
-                List<NetworkPlayerStreamInfo> streamInfo = new List<NetworkPlayerStreamInfo>();
-                foreach (NetworkPlayerInfo netPlayer in m_CurrentPlayers)
-                {
-                    streamInfo.Add(netPlayer.streamInfo);
-                }
-
-                SendUpdateList(streamInfo);
-
-                
+                SendUpdateList(m_CurrentPlayers);
             }
             else
             {
@@ -642,27 +604,19 @@ namespace Parrador
         {
             ///Recieve updated player info
             m_CurrentPlayers.Clear();
+
             if(aUsers != null && aUsers.Length > 0)
             {
                 try
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
                     MemoryStream stream = new MemoryStream(aUsers);
-                    List<NetworkPlayerStreamInfo> playerInfoStream =  (List<NetworkPlayerStreamInfo>)formatter.Deserialize(stream);
-                    if(playerInfoStream != null)
-                    {
-                        foreach(NetworkPlayerStreamInfo streamInfo in playerInfoStream)
-                        {
-                            m_CurrentPlayers.Add(streamInfo.info);
-                        }
-                    }
+                    m_CurrentPlayers = (List<Player>)formatter.Deserialize(stream);
                 }
                 catch(Exception aException)
                 {
                     Debug.LogException(aException);
                 }
-                
-
             }
         }
 
@@ -683,16 +637,25 @@ namespace Parrador
             //    return;
             //}
 
-            networkView.RPC("OnStartGame", RPCMode.Others);
+            networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_START_GAME, RPCMode.Others);
             OnStartGame();
-            m_RegisteringPlayers.Clear();
+            m_RegisteredPlayers.Clear();
         }
 
         [RPC]
         private void OnStartGame()
         {
             Debug.Log("Start Game");
+            m_LoadedTimerFinish = false;
+            StartCoroutine(GameLoadRoutine());
             Application.LoadLevel(LEVEL_NAME);
+        }
+
+        IEnumerator GameLoadRoutine()
+        {
+            m_LoadedTimerFinish = false;
+            yield return new WaitForSeconds(m_LoadTimer);
+            m_LoadedTimerFinish = true;
         }
 
         [RPC]
@@ -702,7 +665,8 @@ namespace Parrador
             {
                 return;
             }
-            NetworkPlayerInfo player = m_CurrentPlayers.FirstOrDefault<NetworkPlayerInfo>(Element => Element.name == aPlayerName);
+            Player player = m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.name == aPlayerName);
+
             if(player.name != aPlayerName)
             {
                 Debug.LogError("Failed to register game loaded for player: " + aPlayerName + ". Possible ghost");
@@ -718,18 +682,34 @@ namespace Parrador
 
             if(m_LoadedPlayers.Count == m_CurrentPlayers.Count)
             {
-                networkView.RPC("OnGameLoaded", RPCMode.Others);
-                OnGameLoaded();
+                BinaryFormatter formatter = new BinaryFormatter();
+                MemoryStream stream = new MemoryStream();
+
+                formatter.Serialize(stream, m_LoadedPlayers);
+                byte[] loadedPlayerBytes = stream.ToArray();
+                networkView.RPC("OnGameLoaded", RPCMode.Others,loadedPlayerBytes);
+                OnGameLoaded(null);
             }
 
         }
         [RPC]
-        private void OnGameLoaded()
+        private void OnGameLoaded(byte[] aLoadedPlayers)
         {
             Debug.Log("Game Loaded !!!!");
             if(Network.isClient)
             {
                 m_CurrentState = NetworkMode.GameClient;
+                try
+                {
+                    BinaryFormatter aFormatter = new BinaryFormatter();
+                    MemoryStream stream = new MemoryStream(aLoadedPlayers);
+                    m_LoadedPlayers = aFormatter.Deserialize(stream) as List<Player>;
+                }
+                catch(Exception aException)
+                {
+                    Debug.LogException(aException);
+                }
+                    
             }
             else
             {
@@ -750,7 +730,7 @@ namespace Parrador
         {
             if(Network.isClient)
             {
-                networkView.RPC("OnNetworkSpawnObject", RPCMode.Server, aIndex, m_HostName, aPosition, aRotation);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_NETWORK_SPAWN_OBJECT, RPCMode.Server, aIndex, m_HostName, aPosition, aRotation);
             }
             else if(Network.isServer)
             {
@@ -761,7 +741,7 @@ namespace Parrador
         {
             if(Network.isClient)
             {
-                networkView.RPC("OnNetworkDespawnObject", RPCMode.Server, aObjectID, m_HostName);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_NETWORK_DESPAWN_OBJECT, RPCMode.Server, aObjectID, m_HostName);
             }
             else
             {
@@ -770,10 +750,10 @@ namespace Parrador
         }
         public void DespawnObject(GameObject aObject)
         {
-            NetworkController controller = aObject.GetComponent<NetworkController>();
-            if(controller != null)
+            NetworkID id = aObject.GetComponent<NetworkID>();
+            if(id != null)
             {
-                DespawnObject(controller.objectID);
+                DespawnObject(id.objectID);
             }
         }
         [RPC]
@@ -786,13 +766,18 @@ namespace Parrador
             }
 
             GameObject prefab = GetPrefabByIndex(aIndex);
-            NetworkPlayerInfo player = GetPlayer(aPlayer);
+            Player player = GetPlayer(aPlayer);
             if(prefab == null)
             {
                 Debug.LogError("Failed to SpawnObject, Missing prefab: index(" + aIndex + ").");
                 return;
             }
-            if(string.IsNullOrEmpty(player.name))
+            if(prefab.GetComponent<NetworkID>() == null)
+            {
+                Debug.LogError("Failed to SpawnObject, Missing NetworkID component");
+                return;
+            }
+            if(player == null)
             {
                 Debug.LogError("Failed to SpawnObject, Missing player: " + aPlayer);
                 return;
@@ -804,22 +789,24 @@ namespace Parrador
                 return;
             }
             GameObject obj = Network.Instantiate(prefab, aPosition, aRotation, playerIndex) as GameObject;
-            NetworkController netController = obj.GetComponent<NetworkController>();
+            NetworkID netID = obj.GetComponent<NetworkID>();
+
+
             NetworkView netView = obj.networkView;
-            if(netView != null && netController != null)
+            if (netView != null && netID != null)
             {
                 string objectID = Guid.NewGuid().ToString();
-                netView.RPC("OnReceiveServerInfo", RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
-                netController.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
+                netView.RPC(NetworkRPC.NETWORK_ID_ON_RECEIVE_SERVER_INFO, RPCMode.OthersBuffered, netView.viewID, player.name, playerIndex, objectID);
+                netID.ReceiveServerInfo(netView.viewID, player.name, playerIndex, objectID);
                 RegisterSpawnedObject(obj);
             }
             else if(netView == null)
             {
                 Debug.LogWarning("Spawned a gameobject on the network but there is no network view associated with it.");
             }
-            else if(netController == null)
+            else if(netID == null)
             {
-                Debug.LogWarning("Spawned a gameobject on the network but there is no network controller associated with it.");
+                Debug.LogWarning("Spawned a gameobject on the network but there is no network id associated with it.");
             }
         }
 
@@ -836,7 +823,7 @@ namespace Parrador
             GameObject spawnedObject = GetSpawnedObject(aObjectID);
             if(spawnedObject != null)
             {
-                networkView.RPC("OnNetworkDestroyObject", RPCMode.OthersBuffered, aObjectID);
+                networkView.RPC(NetworkRPC.NETWORK_MANAGER_ON_NETWORK_DESTROY_OBJECT, RPCMode.OthersBuffered, aObjectID);
                 Destroy(spawnedObject);
             }
             else
@@ -867,6 +854,98 @@ namespace Parrador
             
         }
 
+
+        #endregion
+
+
+        #region WORLD METHODS
+        public void CloseNetwork()
+        {
+            Debug.Log("Closing Server");
+
+            Network.Disconnect();
+            ResetState();
+        }
+
+
+
+        #region PREFAB ACCESS
+
+        public GameObject GetPrefabByName(string aName)
+        {
+            return m_Prefabs.FirstOrDefault<GameObject>(Element => Element.name == aName);
+        }
+        public GameObject GetPrefabByIndex(int aIndex)
+        {
+            if (aIndex >= 0 && aIndex <= m_Prefabs.Count)
+            {
+                return m_Prefabs[aIndex];
+            }
+            return null;
+        }
+
+        #endregion
+
+
+        public Player GetPlayer(string aName)
+        {
+            return m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.name == aName);
+        }
+        public Player GetPlayer(int aIndex)
+        {
+            if (aIndex >= 0 && aIndex < m_CurrentPlayers.Count)
+            {
+                return m_CurrentPlayers[aIndex];
+            }
+            return null;
+        }
+        public Player GetSelf()
+        {
+            return m_CurrentPlayers.FirstOrDefault<Player>(Element => Element.name == m_HostName);
+        }
+        public int GetPlayerIndex(string aName)
+        {
+            return m_CurrentPlayers.FindIndex(Element => Element.name == aName);
+        }
+        public int GetPlayerIndex(Player aInfo)
+        {
+            return m_CurrentPlayers.IndexOf(aInfo);
+        }
+        public void RegisterSpawnedObject(GameObject aObject)
+        {
+            m_ServerGameObjects.Add(aObject);
+            NetworkID netID = aObject.GetComponent<NetworkID>();
+            if(netID != null && callbackHandler != null)
+            {
+                callbackHandler.OnGameObjectSpawned(netID.objectID, netID.ownerName);
+            }
+
+        }
+        public void UnregisterSpawnedObject(GameObject aObject)
+        {
+            bool exists = m_ServerGameObjects.Any<GameObject>(Element => Element == aObject);
+            NetworkID netID = aObject.GetComponent<NetworkID>();
+            if(netID != null && callbackHandler != null && exists)
+            {
+                callbackHandler.OnGameObjectDespawned(netID.objectID, netID.ownerName);
+            }
+            m_ServerGameObjects.Remove(aObject);
+        }
+
+        public GameObject GetSpawnedObject(string aObjectId)
+        {
+            foreach (GameObject gObject in m_ServerGameObjects)
+            {
+                NetworkID netID = gObject.GetComponent<NetworkID>();
+                if(netID != null && netID.objectID == aObjectId)
+                {
+                    return gObject;
+                }
+            }
+            Debug.LogError("Did not find object");
+            return null;
+        }
+        #endregion
 
         #endregion
 
