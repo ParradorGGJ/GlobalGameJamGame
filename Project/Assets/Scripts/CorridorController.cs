@@ -71,8 +71,9 @@ namespace Parrador
             { 
                 RandomizeTransitionPointDestinations();
 
-                point.position = GetRandomTransitionLocation().transform.position;
-                point.rotation = GetRandomTransitionLocation().transform.rotation;
+                //point.position = GetRandomTransitionLocation().transform.position;
+                //point.rotation = GetRandomTransitionLocation().transform.rotation;
+                point = GetRandomTransitionLocation().transform;
                 return point;
             }
 
