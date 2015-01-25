@@ -57,7 +57,8 @@ namespace Parrador
 
                 if (m_DestinationRoom != RoomType.Corridor)
                 {
-
+                    Room targetRoom = m_Corridor.rooms[(int)m_DestinationRoom];
+                    targetRoom.UpdateRoomState(); 
                 }
                 
                 Transform movePoint = m_Corridor.GetRoomTransitionPoint(m_DestinationRoom);

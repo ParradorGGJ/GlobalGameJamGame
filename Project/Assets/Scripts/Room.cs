@@ -47,8 +47,8 @@ namespace Parrador
         [SerializeField]
         private int m_TimesVisitedByOtherPlayer = 0;
 
-        [SerializeField]
-        private bool m_UpdateDeteriorationState = false;
+        //[SerializeField]
+        //private bool m_UpdateDeteriorationState = false;
 
         [SerializeField]
         private DeteriorationLevel m_Deterioration = DeteriorationLevel.Prestine;
@@ -96,19 +96,19 @@ namespace Parrador
 
         void Update()
         {
-            if (m_UpdateDeteriorationState)
-            {
-                //testing
-                int newState = (int)m_Deterioration + 1;
-                if (newState > (int)DeteriorationLevel.HeavyGrunge)
-                {
-                    newState = 0;
-                }
-                m_Deterioration = (DeteriorationLevel)newState;
-                UpdateMaterial(newState);
-                //end testing
-                m_UpdateDeteriorationState = false;
-            }
+            //if (m_UpdateDeteriorationState)
+            //{
+            //    //testing
+            //    int newState = (int)m_Deterioration + 1;
+            //    if (newState > (int)DeteriorationLevel.HeavyGrunge)
+            //    {
+            //        newState = 0;
+            //    }
+            //    m_Deterioration = (DeteriorationLevel)newState;
+            //    UpdateMaterial(newState);
+            //    //end testing
+            //    m_UpdateDeteriorationState = false;
+            //}
 
         }
 
@@ -126,6 +126,32 @@ namespace Parrador
             }
 
             m_RoomRenderer.material = m_RoomMaterials[aMaterialIndex];
+        }
+
+        public void UpdateRoomState()
+        {
+            float timePercentage = Mathf.Clamp01(GameManager.instance.timeRemaining / GameManager.instance.timeLimit);
+
+            if (timePercentage < 0.25f)
+            {
+                m_Deterioration = DeteriorationLevel.HeavyGrunge;
+            }
+            else if (timePercentage < 0.5f)
+            {
+                m_Deterioration = DeteriorationLevel.MediumGrunge;
+            }
+            else if (timePercentage < 0.75f)
+            {
+                m_Deterioration = DeteriorationLevel.LowGrunge;
+            }
+            else
+            {
+                m_Deterioration = DeteriorationLevel.Prestine;
+            }
+
+            int currentState = (int)m_Deterioration;
+            UpdateMaterial(currentState);
+
         }
 
         public RoomType uniqueID
