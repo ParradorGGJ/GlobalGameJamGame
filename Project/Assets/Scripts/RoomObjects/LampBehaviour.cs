@@ -26,7 +26,7 @@ namespace Parrador
         // Update is called once per frame
         void Update()
         {
-            UpdateState();  //only here while testing, will be called through interfact externally
+            
         }
 
         public override void ObjectSpecificStateUpate()
@@ -35,5 +35,17 @@ namespace Parrador
             m_TopLight.enabled = used;
         }
 
+        void OnTriggerStay(Collider collider)
+        {
+            if (collider.CompareTag("Player") == false) { return; }
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                used = !used;
+                UpdateState();
+                
+            }
+        }
+        
     }
 }

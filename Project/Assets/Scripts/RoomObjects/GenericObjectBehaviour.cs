@@ -23,6 +23,7 @@ namespace Parrador
         public bool used
         {
             get { return m_Used; }
+            set { m_Used = value; }
         }
         #endregion
 
