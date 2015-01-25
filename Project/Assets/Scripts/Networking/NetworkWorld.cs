@@ -33,6 +33,9 @@ namespace Parrador
             {
                 NetworkManager.instance.CloseNetwork();
             }
+
+            
+
         }
         
         public static void StartGame()
@@ -51,6 +54,10 @@ namespace Parrador
         public static GameObject GetPrefab(int aIndex)
         {
             return NetworkManager.instance == null ? null : NetworkManager.instance.GetPrefabByIndex(aIndex);
+        }
+        public static int GetPrefabIndex(string aName)
+        {
+            return NetworkManager.instance == null ? null : NetworkManager.instance.GetPrefabIndex(aName);
         }
 
         
