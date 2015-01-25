@@ -883,6 +883,10 @@ namespace Parrador
             }
             return null;
         }
+        public int GetPrefabIndex(string aName)
+        {
+            return m_Prefabs.FindIndex(Element => Element.name == aName);
+        }
 
         #endregion
 

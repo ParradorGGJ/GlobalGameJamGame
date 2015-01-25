@@ -57,7 +57,7 @@ namespace Parrador
         }
         public static int GetPrefabIndex(string aName)
         {
-            return NetworkManager.instance == null ? null : NetworkManager.instance.GetPrefabIndex(aName);
+            return NetworkManager.instance == null ? 0 : NetworkManager.instance.GetPrefabIndex(aName);
         }
 
         
