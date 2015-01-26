@@ -124,7 +124,6 @@ namespace Parrador
 
         public void OnGameStart()
         {
-        Debug.Log("Sajkltja");
             //Gets called when the GameMode officially starts. (All players loaded).
             NetworkWorld.SendSetTime(m_TimeLimit);
             m_GameRunning = true;

@@ -23,6 +23,7 @@ namespace Parrador
         {
         	//m_TimeRemaining -= Time.deltaTime; 
             //GameManager.instance.SetGameTime(m_TimeRemaining);
+            m_TimeRemaining = GameManager.instance.GetGameTime();
 			m_Time.text = DisplayTime((int)m_TimeRemaining);
          	
             
